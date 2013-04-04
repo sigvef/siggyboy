@@ -10,25 +10,28 @@ MU_TEST(reset){
     CPU_reset(&cpu);
 
     /* assert */
-    mu_check(cpu.AF == 0);
-    mu_check(cpu.A == 0);
-    mu_check(cpu.zf == 0);
-    mu_check(cpu.n  == 0);
-    mu_check(cpu.h  == 0);
-    mu_check(cpu.cy == 0);
-    mu_check(cpu.F == 0);
+    mu_assert_int_eq(0, cpu.AF);
+    mu_assert_int_eq(0, cpu.A);
+    mu_assert_int_eq(0, cpu.zf);
+    mu_assert_int_eq(0, cpu.n);
+    mu_assert_int_eq(0, cpu.h);
+    mu_assert_int_eq(0, cpu.cy);
+    mu_assert_int_eq(0, cpu.F);
 
-    mu_check(cpu.BC == 0);
-    mu_check(cpu.B == 0);
-    mu_check(cpu.C == 0);
+    mu_assert_int_eq(0, cpu.BC);
+    mu_assert_int_eq(0, cpu.B);
+    mu_assert_int_eq(0, cpu.C);
 
-    mu_check(cpu.DE == 0);
-    mu_check(cpu.D == 0);
-    mu_check(cpu.E == 0);
+    mu_assert_int_eq(0, cpu.DE);
+    mu_assert_int_eq(0, cpu.D);
+    mu_assert_int_eq(0, cpu.E);
 
-    mu_check(cpu.HL == 0);
-    mu_check(cpu.H == 0);
-    mu_check(cpu.L == 0);
+    mu_assert_int_eq(0, cpu.HL);
+    mu_assert_int_eq(0, cpu.H);
+    mu_assert_int_eq(0, cpu.L);
+
+    mu_assert_int_eq(0x100, cpu.PC);
+    mu_assert_int_eq(0, cpu.SP);
 }
 
 
