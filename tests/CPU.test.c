@@ -307,6 +307,110 @@ MU_TEST(instructions_xor){
 }
 
 
+MU_TEST(instructions_cp){
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.A = 0x3C;
+    cpu.B = 0x2F;
+    ram[0x100] = 0xB8; /* CP B */
+    ram[cpu.HL] = 0x40;
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(0, cpu.z);
+    mu_assert_int_eq(1, cpu.h);
+    mu_assert_int_eq(1, cpu.n);
+    mu_assert_int_eq(0, cpu.cy);
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.A = 0x3C;
+    cpu.B = 0x2F;
+    ram[0x100] = 0xFE; /* CP n */
+    ram[0x101] = 0x3C; /* immediate value */
+    ram[cpu.HL] = 0x40;
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(1, cpu.z);
+    mu_assert_int_eq(0, cpu.h);
+    mu_assert_int_eq(1, cpu.n);
+    mu_assert_int_eq(0, cpu.cy);
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.A = 0x3C;
+    cpu.B = 0x2F;
+    ram[0x100] = 0xBE; /* CP B */
+    ram[cpu.HL] = 0x40;
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(0, cpu.z);
+    mu_assert_int_eq(0, cpu.h);
+    mu_assert_int_eq(1, cpu.n);
+    mu_assert_int_eq(1, cpu.cy);
+}
+
+
+MU_TEST(instructions_inc){
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.A = 0xFF;
+    ram[0x100] = 0x3C; /* INC A */
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(0, cpu.A);
+    mu_assert_int_eq(1, cpu.z);
+    mu_assert_int_eq(1, cpu.h);
+    mu_assert_int_eq(0, cpu.n);
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.A = 0xFF;
+    ram[0x100] = 0x34; /* INC (HL) */
+    ram[cpu.HL] = 0x50;
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(0x51, ram[cpu.HL]);
+    mu_assert_int_eq(0, cpu.z);
+    mu_assert_int_eq(0, cpu.h);
+    mu_assert_int_eq(0, cpu.n);
+}
+
+
+MU_TEST(instructions_dec){
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.L = 0x01;
+    ram[0x100] = 0x2D; /* DEC L */
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(0x00, cpu.L);
+    mu_assert_int_eq(1, cpu.z);
+    mu_assert_int_eq(0, cpu.h);
+    mu_assert_int_eq(1, cpu.n);
+
+    /* act */
+    CPU_reset(&cpu);
+    ram[0x100] = 0x35; /* DEC (HL) */
+    ram[cpu.HL] = 0x00; 
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(0xFF, ram[cpu.HL]);
+    mu_assert_int_eq(0, cpu.z);
+    mu_assert_int_eq(1, cpu.h);
+    mu_assert_int_eq(1, cpu.n);
+}
+
+
 MU_TEST_SUITE(cpu_suite){
     MU_RUN_TEST(reset);
     MU_RUN_TEST(unionification);
@@ -318,6 +422,9 @@ MU_TEST_SUITE(cpu_suite){
     MU_RUN_TEST(instructions_and);
     MU_RUN_TEST(instructions_or);
     MU_RUN_TEST(instructions_xor);
+    MU_RUN_TEST(instructions_cp);
+    MU_RUN_TEST(instructions_inc);
+    MU_RUN_TEST(instructions_dec);
 }
 
 int main(int argc, char *argv[]) {

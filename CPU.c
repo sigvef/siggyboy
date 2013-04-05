@@ -60,6 +60,33 @@ uint8_t CPU_op_xor(CPU*cpu, uint8_t a, uint8_t b){
 }
 
 
+void CPU_op_cp(CPU*cpu, uint8_t a, uint8_t b){
+    uint8_t result = a - b;
+    cpu->z =  result ? 0 : 1;
+	cpu->h = ((a & 0x0F) < (b & 0x0F)) ? 1 : 0;
+    cpu->n = 1;
+	cpu->cy = a < b ? 1 : 0;
+}
+
+
+uint8_t CPU_op_inc(CPU*cpu, uint8_t a){
+    uint8_t result = a + 1;
+    cpu->z = result ? 0 : 1;
+    cpu->h = (a & 0x0F) == 0 ? 0 : 1;
+    cpu->n = 0;
+    return result;
+}
+
+
+uint8_t CPU_op_dec(CPU*cpu, uint8_t a){
+    uint8_t result = a - 1;
+    cpu->z = result ? 0 : 1;
+    cpu->h = (a & 0x0F) == 0 ? 1 : 0;
+    cpu->n = 1;
+    return result;
+}
+
+
 /* inspired by https://gbemulator.googlecode.com/svn/trunk/src/core.c */
 
 /* a good resource is page 84- of http://chrisantonellis.com/files/gameboy/gb-programming-manual.pdf */
@@ -605,55 +632,86 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
 
 
         case 0xBF:	// CP A
+            CPU_op_cp(cpu, cpu->A, cpu->A);
             break;
         case 0xB8:	// CP B
+            CPU_op_cp(cpu, cpu->A, cpu->B);
             break;
         case 0xB9:	// CP C
+            CPU_op_cp(cpu, cpu->A, cpu->C);
             break;
         case 0xBA:	// CP D
+            CPU_op_cp(cpu, cpu->A, cpu->D);
             break;
         case 0xBB:	// CP E
+            CPU_op_cp(cpu, cpu->A, cpu->E);
             break;
         case 0xBC:	// CP H
+            CPU_op_cp(cpu, cpu->A, cpu->H);
             break;
         case 0xBD:	// CP L
+            CPU_op_cp(cpu, cpu->A, cpu->L);
             break;
         case 0xBE:	// CP (HL)
+            CPU_op_cp(cpu, cpu->A, ram[cpu->HL]);
             break;
         case 0xFE:	// CP n
+            CPU_op_cp(cpu, cpu->A, ram[++cpu->PC]);
             break;
+
+
         case 0x3C:	// INC A
+            cpu->A = CPU_op_inc(cpu, cpu->A);
             break;
         case 0x04:	// INC B
+            cpu->B = CPU_op_inc(cpu, cpu->B);
             break;
         case 0x0C:	// INC C
+            cpu->C = CPU_op_inc(cpu, cpu->C);
             break;
         case 0x14:	// INC D
+            cpu->D = CPU_op_inc(cpu, cpu->D);
             break;
         case 0x1C:	// INC E
+            cpu->E = CPU_op_inc(cpu, cpu->E);
             break;
         case 0x24:	// INC H
+            cpu->H = CPU_op_inc(cpu, cpu->H);
             break;
         case 0x2C:	// INC L
+            cpu->L = CPU_op_inc(cpu, cpu->L);
             break;
         case 0x34:	// INC (HL)
+            ram[cpu->HL] = CPU_op_inc(cpu, ram[cpu->HL]);
             break;
+
+
         case 0x3D:	// DEC A
+            cpu->A = CPU_op_dec(cpu, cpu->A);
             break;
         case 0x05:	// DEC B
+            cpu->B = CPU_op_dec(cpu, cpu->B);
             break;
         case 0x0D:	// DEC C
+            cpu->C = CPU_op_dec(cpu, cpu->C);
             break;
         case 0x15:	// DEC D
+            cpu->D = CPU_op_dec(cpu, cpu->D);
             break;
         case 0x1D:	// DEC E
+            cpu->E = CPU_op_dec(cpu, cpu->E);
             break;
         case 0x25:	// DEC H
+            cpu->H = CPU_op_dec(cpu, cpu->H);
             break;
         case 0x2D:	// DEC L
+            cpu->L = CPU_op_dec(cpu, cpu->L);
             break;
         case 0x35:	// DEC (HL)
+            ram[cpu->HL] = CPU_op_dec(cpu, ram[cpu->HL]);
             break;
+
+
         case 0x09:	// ADD HL, BC
             break;
         case 0x19:	// ADD HL, DE
