@@ -56,5 +56,6 @@ typedef struct{
 } CPU;
 
 void CPU_reset(CPU*cpu);
+void CPU_process_instruction(CPU*cpu, int opcode);
 
 #endif

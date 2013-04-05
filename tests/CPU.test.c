@@ -53,10 +53,26 @@ MU_TEST(unionification){
 }
 
 
+MU_TEST(instructions_ld_register_to_register){
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.BC = 0xA952;
+    CPU_process_instruction(&cpu, 0x51); /* LD D, C */
+    CPU_process_instruction(&cpu, 0x48); /* LD C, B */
+    
+    /* assert */
+    mu_assert_int_eq(0xA9, cpu.C);
+    mu_assert_int_eq(0xA9, cpu.B);
+    mu_assert_int_eq(0x52, cpu.D);
+}
+
+
 
 MU_TEST_SUITE(cpu_suite){
     MU_RUN_TEST(reset);
     MU_RUN_TEST(unionification);
+    MU_RUN_TEST(instructions_ld_register_to_register);
 }
 
 int main(int argc, char *argv[]) {
