@@ -87,6 +87,15 @@ uint8_t CPU_op_dec(CPU*cpu, uint8_t a){
 }
 
 
+uint16_t CPU_op_add_16(CPU*cpu, uint16_t a, uint16_t b){
+    uint16_t result = a + b;
+    cpu->h =  (0x0FFF - (a & 0x0FFF) < (b & 0x0FFF)) ? 1 : 0;
+    cpu->n = 0;
+    cpu->cy = 0xFFFF - a < b ? 1 : 0;
+    return result;
+}
+
+
 /* inspired by https://gbemulator.googlecode.com/svn/trunk/src/core.c */
 
 /* a good resource is page 84- of http://chrisantonellis.com/files/gameboy/gb-programming-manual.pdf */
@@ -562,6 +571,7 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
 
 
         case 0xA7:	// AND A
+            cpu->A = CPU_op_and(cpu, cpu->A, cpu->A);
             break;
         case 0xA0:	// AND B
             cpu->A = CPU_op_and(cpu, cpu->A, cpu->B);
@@ -729,19 +739,19 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
 
 
         case 0x09:	// ADD HL, BC
-            //cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->BC);
+            cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->BC);
             break;
         case 0x19:	// ADD HL, DE
-            //cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->DE);
+            cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->DE);
             break;
         case 0x29:	// ADD HL, HL
-            //cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->HL);
+            cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->HL);
             break;
         case 0x39:	// ADD HL, SP
-            //cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->SP);
+            cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->SP);
             break;
         case 0xE8:	// ADD SP, n
-            //cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->BC);
+            cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->BC);
             break;
         case 0x03:	// INC BC
             break;
