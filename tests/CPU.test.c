@@ -247,7 +247,7 @@ MU_TEST(instructions_or){
     /* act */
     CPU_reset(&cpu);
     cpu.A = 0x5A;
-    ram[0x100] = 0xF6; /* OR L */
+    ram[0x100] = 0xF6; 
     ram[0x101] = 0x03; /* immediate value */
     ram[cpu.HL] = 0x0F;
     CPU_process_instruction(&cpu, ram);
@@ -269,6 +269,44 @@ MU_TEST(instructions_or){
 }
 
 
+MU_TEST(instructions_xor){
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.A = 0xFF;
+    ram[0x100] = 0xAF; /* XOR A */
+    ram[cpu.HL] = 0x8A;
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(0x00, cpu.A);
+    mu_assert_int_eq(1, cpu.z);
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.A = 0xFF;
+    ram[0x100] = 0xEE; /* XOR n */
+    ram[0x101] = 0x0F; /* immediate value */
+    ram[cpu.HL] = 0x8A;
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(0xF0, cpu.A);
+    mu_assert_int_eq(0, cpu.z);
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.A = 0xFF;
+    ram[0x100] = 0xAE; /* XOR (HL) */
+    ram[cpu.HL] = 0x8A;
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(0x75, cpu.A);
+    mu_assert_int_eq(0, cpu.z);
+}
+
+
 MU_TEST_SUITE(cpu_suite){
     MU_RUN_TEST(reset);
     MU_RUN_TEST(unionification);
@@ -279,6 +317,7 @@ MU_TEST_SUITE(cpu_suite){
     MU_RUN_TEST(instructions_sub);
     MU_RUN_TEST(instructions_and);
     MU_RUN_TEST(instructions_or);
+    MU_RUN_TEST(instructions_xor);
 }
 
 int main(int argc, char *argv[]) {
