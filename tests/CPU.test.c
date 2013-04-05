@@ -471,6 +471,32 @@ MU_TEST(instructions_add_16){
 }
 
 
+MU_TEST(instructions_inc_16){
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.DE = 0x235F;
+    ram[0x100] = 0x13; /* INC DE */
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(0x2360, cpu.DE);
+}
+
+
+MU_TEST(instructions_dec_16){
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.DE = 0x235F;
+    ram[0x100] = 0x1B; /* DEC DE */
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(0x235E, cpu.DE);
+}
+
+
 MU_TEST_SUITE(cpu_suite){
     MU_RUN_TEST(reset);
     MU_RUN_TEST(unionification);
@@ -488,6 +514,8 @@ MU_TEST_SUITE(cpu_suite){
     MU_RUN_TEST(instructions_inc);
     MU_RUN_TEST(instructions_dec);
     MU_RUN_TEST(instructions_add_16);
+    MU_RUN_TEST(instructions_inc_16);
+    MU_RUN_TEST(instructions_dec_16);
 }
 
 int main(int argc, char *argv[]) {

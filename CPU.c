@@ -751,23 +751,31 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->SP);
             break;
         case 0xE8:	// ADD SP, n
-            cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->BC);
+            cpu->SP = CPU_op_add_16(cpu, cpu->HL, ram[++cpu->PC]);
             break;
         case 0x03:	// INC BC
+            cpu->BC++;
             break;
         case 0x13:	// INC DE
+            cpu->DE++;
             break;
         case 0x23:	// INC HL
+            cpu->HL++;
             break;
         case 0x33:	// INC SP
+            cpu->SP++;
             break;
         case 0x0B:	// DEC BC
+            cpu->BC--;
             break;
         case 0x1B:	// DEC DE
+            cpu->DE--;
             break;
         case 0x2B:	// DEC HL
+            cpu->HL--;
             break;
         case 0x3B:	// DEC SP
+            cpu->SP--;
             break;
         case 0xCB:	// Some two byte opcodes here.
             break;
