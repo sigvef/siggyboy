@@ -2,7 +2,7 @@
 #include "minunit.h"
 
 CPU cpu;
-uint8_t ram[0x8000];
+uint8_t ram[0x80000];
 
 /* tests the reset functionality of the CPU */
 MU_TEST(reset){
@@ -32,7 +32,7 @@ MU_TEST(reset){
     mu_assert_int_eq(0, cpu.L);
 
     mu_assert_int_eq(0x100, cpu.PC);
-    mu_assert_int_eq(0, cpu.SP);
+    mu_assert_int_eq(0xFFFF, cpu.SP);
 }
 
 
@@ -95,6 +95,36 @@ MU_TEST(instructions_ld_register_to_hl_ram){
     
     /* assert */
     mu_assert_int_eq(0x3C, ram[0x8AC5]);
+}
+
+
+MU_TEST(instructions_push){
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.SP = 0xFFFE;
+    cpu.BC = 0xABCD;
+    ram[0x100] = 0xC5; /* PUSH BC */
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(0xCD, ram[0xFFFD]);
+    mu_assert_int_eq(0xAB, ram[0xFFFC]);
+}
+
+
+MU_TEST(instructions_pop){
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.SP = 0xFFFC;
+    ram[0x100] = 0xC1; /* POP BC */
+    ram[0xFFFD] = 0xCD;
+    ram[0xFFFC] = 0xAB;
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(0xABCD, cpu.BC);
 }
 
 
@@ -417,6 +447,8 @@ MU_TEST_SUITE(cpu_suite){
     MU_RUN_TEST(instructions_ld_register_to_register);
     MU_RUN_TEST(instructions_ld_immediate_to_register);
     MU_RUN_TEST(instructions_ld_register_to_hl_ram);
+    MU_RUN_TEST(instructions_push);
+    MU_RUN_TEST(instructions_pop);
     MU_RUN_TEST(instructions_add);
     MU_RUN_TEST(instructions_sub);
     MU_RUN_TEST(instructions_and);

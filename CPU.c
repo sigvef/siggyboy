@@ -5,7 +5,7 @@ void CPU_reset(CPU*cpu){
     cpu->BC = 0;
     cpu->DE = 0;
     cpu->HL = 0;
-    cpu->SP = 0;
+    cpu->SP = 0xFFFF;
     cpu->PC = 0x100;
 }
 
@@ -411,20 +411,36 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
 
 
         case 0xF5:	// PUSH AF
+            ram[--cpu->SP] = cpu->A;
+            ram[--cpu->SP] = cpu->F;
             break;
         case 0xC5:	// PUSH BC
+            ram[--cpu->SP] = cpu->C;
+            ram[--cpu->SP] = cpu->B;
             break;
         case 0xD5:	// PUSH DE
+            ram[--cpu->SP] = cpu->E;
+            ram[--cpu->SP] = cpu->D;
             break;
         case 0xE5:	// PUSH HL
+            ram[--cpu->SP] = cpu->H;
+            ram[--cpu->SP] = cpu->L;
             break;
         case 0xF1:	// POP AF
+            cpu->A = ram[cpu->SP++];
+            cpu->F = ram[cpu->SP++];
             break;
         case 0xC1:	// POP BC
+            cpu->B = ram[cpu->SP++];
+            cpu->C = ram[cpu->SP++];
             break;
         case 0xD1:	// POP DE
+            cpu->D = ram[cpu->SP++];
+            cpu->E = ram[cpu->SP++];
             break;
         case 0xE1:	// POP HL
+            cpu->L = ram[cpu->SP++];
+            cpu->H = ram[cpu->SP++];
             break;
 
 
@@ -713,14 +729,19 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
 
 
         case 0x09:	// ADD HL, BC
+            //cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->BC);
             break;
         case 0x19:	// ADD HL, DE
+            //cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->DE);
             break;
         case 0x29:	// ADD HL, HL
+            //cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->HL);
             break;
         case 0x39:	// ADD HL, SP
+            //cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->SP);
             break;
         case 0xE8:	// ADD SP, n
+            //cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->BC);
             break;
         case 0x03:	// INC BC
             break;
