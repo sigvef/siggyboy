@@ -753,6 +753,8 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
         case 0xE8:	// ADD SP, n
             cpu->SP = CPU_op_add_16(cpu, cpu->HL, ram[++cpu->PC]);
             break;
+
+
         case 0x03:	// INC BC
             cpu->BC++;
             break;
@@ -765,6 +767,8 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
         case 0x33:	// INC SP
             cpu->SP++;
             break;
+
+
         case 0x0B:	// DEC BC
             cpu->BC--;
             break;
@@ -777,6 +781,7 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
         case 0x3B:	// DEC SP
             cpu->SP--;
             break;
+
         case 0xCB:	// Some two byte opcodes here.
             break;
         case 0x27:   // DAA
@@ -795,15 +800,40 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             break;
         case 0xFB:	// EI
             break;
+
+
         case 0x07:	// RLCA
+            cpu->z = 0;
+            cpu->h = 0;
+            cpu->n = 0;
+            cpu->cy = (cpu->A & 0x80 ) >> 7;
+            cpu->A = cpu->A<<1;
             break;
         case 0x17:	// RLA
+            ;int temp_cy = (cpu->A & 0x80) >> 7;
+            cpu->A = cpu->A<<1;
+            cpu->A |= cpu->cy;
+            cpu->z = 0;
+            cpu->h = 0;
+            cpu->n = 0;
+            cpu->cy = temp_cy;
             break;
         case 0x0F:	// RRCA
+            cpu->z = 0;
+            cpu->h = 0;
+            cpu->n = 0;
+            cpu->cy = cpu->A & 0x01;
+            cpu->A = cpu->A>>1;
+            cpu->A |= cpu->cy << 7;
             break;
         case 0x1F:	// RRA
+            cpu->z = 0;
+            cpu->h = 0;
+            cpu->n = 0;
+            cpu->cy = cpu->A & 0x01;
+            cpu->A = cpu->A>>1;
             break;
-        case 0xC3:   // JP imm
+        case 0xC3:  // JP imm
             break;
         case 0xC2: 	// JP NZ, nn
             break;
@@ -813,17 +843,17 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             break;
         case 0xDA: 	// JP C, nn
             break;
-        case 0xE9:   // JP HL
+        case 0xE9:  // JP HL
             break;
-        case 0x18:   // JR n
+        case 0x18:  // JR n
             break;
-        case 0x20:   // JR NZ, n
+        case 0x20:  // JR NZ, n
             break;
-        case 0x28:   // JR Z, n
+        case 0x28:  // JR Z, n
             break;
-        case 0x30:   // JR NC, n
+        case 0x30:  // JR NC, n
             break;
-        case 0x38:   // JR C, n
+        case 0x38:  // JR C, n
             break;
         case 0xCD:	// CALL nn
             break;
