@@ -20,6 +20,16 @@ uint8_t CPU_op_add(CPU*cpu, uint8_t a, uint8_t b){
 }
 
 
+uint8_t CPU_op_sub(CPU*cpu, uint8_t a, uint8_t b){
+    uint8_t result = a - b;
+    cpu->z = result ? 0 : 1;
+	cpu->h = ((a & 0x0F) < (b & 0x0F)) ? 1 : 0;
+    cpu->n = 1;
+	cpu->cy = a < b ? 1 : 0;
+    return result;
+}
+
+
 /* inspired by https://gbemulator.googlecode.com/svn/trunk/src/core.c */
 
 /* a good resource is page 84- of http://chrisantonellis.com/files/gameboy/gb-programming-manual.pdf */
@@ -31,27 +41,27 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
         /* 8 bit loads, immediate to register */
         /* TODO: actually read next byte, increment PC etc */
         case 0x06:
-            cpu->B = 0;
+            cpu->B = ram[++cpu->PC];
             break;
 
         case 0x0E:
-            cpu->C = 0;
+            cpu->C = ram[++cpu->PC];
             break;
 
         case 0x16:
-            cpu->D = 0;
+            cpu->D = ram[++cpu->PC];
             break;
 
         case 0x1E:
-            cpu->E = 0;
+            cpu->E = ram[++cpu->PC];
             break;
 
         case 0x26:
-            cpu->H = 0;
+            cpu->H = ram[++cpu->PC];
             break;
 
         case 0x2E:
-            cpu->L = 0;
+            cpu->L = ram[++cpu->PC];
             break;
 
 
@@ -284,14 +294,18 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             break;
 
 
-            /* 8bit loads/dec/inc */
+            /* 8bit loads/dec/inc, also called LD A, (HLI) for instance */
         case 0x3A:  /* LDD A, (HL) */
+            cpu->A = ram[cpu->HL--];
             break;
         case 0x32:  /* LDD (HL), A */
+            ram[cpu->HL--] = cpu->A;
             break;
         case 0x2A:  /* LDI A, (HL) */
+            cpu->A = ram[cpu->HL++];
             break;
         case 0x22:  /* LDI (HL), A */
+            ram[cpu->HL++] = cpu->A;
             break;
         case 0xE0:  /* LDH (n), A */
             break;
@@ -301,18 +315,41 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
 
             /* 16bit loads */
         case 0x01:  /* LD BC, nn */
+            immediate = ram[++cpu->PC];
+            immediate = (immediate << 8) | ram[++cpu->PC];
+            cpu->BC = immediate;
             break;
         case 0x11:  /* LD DE, nn */
+            immediate = ram[++cpu->PC];
+            immediate = (immediate << 8) | ram[++cpu->PC];
+            cpu->DE = immediate;
             break;
         case 0x21:  /* LD HL, nn */
+            immediate = ram[++cpu->PC];
+            immediate = (immediate << 8) | ram[++cpu->PC];
+            cpu->HL = immediate;
             break;
         case 0x31:  /* LD SP, nn */
+            immediate = ram[++cpu->PC];
+            immediate = (immediate << 8) | ram[++cpu->PC];
+            cpu->SP = immediate;
             break;
         case 0xF9:  /* LD SP, HL */
+            cpu->SP = cpu->HL;
             break;
         case 0xF8:  /* LDHL SP, n */
+            cpu->HL = cpu->SP + ram[++cpu->PC];
+            cpu->z = 0;
+            cpu->h = 0; /* TODO: h should not always be 0 */
+            cpu->n = 0;
+            cpu->cy = 0; /* TODO: cy should not always be 0 */
             break;
         case 0x08: // LD (nn), SP
+            immediate = ram[++cpu->PC];
+            immediate = (immediate << 8) | ram[++cpu->PC];
+            cpu->BC = immediate;
+            ram[immediate] = cpu->SP & 0xFF;
+            ram[immediate+1] = (cpu->SP & 0xFF00) >> 8;
             break;
 
 
@@ -357,45 +394,71 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             cpu->A = CPU_op_add(cpu, cpu->A, cpu->L);
             break;
         case 0x86:	// ADD A, (HL)
+            cpu->A = CPU_op_add(cpu, cpu->A, ram[cpu->HL]);
             break;
         case 0xC6:	// ADD A, n
+            cpu->A = CPU_op_add(cpu, cpu->A, ram[++cpu->PC]);
             break;
+
+
         case 0x8F:	// ADC A, A
+            cpu->A = CPU_op_add(cpu, cpu->A+cpu->cy, cpu->A);
             break;
         case 0x88:	// ADC A, B
+            cpu->A = CPU_op_add(cpu, cpu->A+cpu->cy, cpu->B);
             break;
         case 0x89:	// ADC A, C
+            cpu->A = CPU_op_add(cpu, cpu->A+cpu->cy, cpu->C);
             break;
         case 0x8A:	// ADC A, D
+            cpu->A = CPU_op_add(cpu, cpu->A+cpu->cy, cpu->D);
             break;
         case 0x8B:	// ADC A, E
+            cpu->A = CPU_op_add(cpu, cpu->A+cpu->cy, cpu->E);
             break;
         case 0x8C:	// ADC A, H
+            cpu->A = CPU_op_add(cpu, cpu->A+cpu->cy, cpu->H);
             break;
         case 0x8D:	// ADC A, L
+            cpu->A = CPU_op_add(cpu, cpu->A+cpu->cy, cpu->L);
             break;
         case 0x8E:	// ADC A, (HL)
+            cpu->A = CPU_op_add(cpu, cpu->A+cpu->cy, ram[cpu->HL]);
             break;
         case 0xCE:	// ADC A, n
+            cpu->A = CPU_op_add(cpu, cpu->A+cpu->cy, ram[++cpu->PC]);
             break;
+
+
         case 0x97:	// SUB A, A
+            cpu->A = CPU_op_sub(cpu, cpu->A, cpu->A);
             break;
         case 0x90:	// SUB A, B
+            cpu->A = CPU_op_sub(cpu, cpu->A, cpu->B);
             break;
         case 0x91:	// SUB A, C
+            cpu->A = CPU_op_sub(cpu, cpu->A, cpu->C);
             break;
         case 0x92:	// SUB A, D
+            cpu->A = CPU_op_sub(cpu, cpu->A, cpu->D);
             break;
         case 0x93:	// SUB A, E
+            cpu->A = CPU_op_sub(cpu, cpu->A, cpu->E);
             break;
         case 0x94:	// SUB A, H
+            cpu->A = CPU_op_sub(cpu, cpu->A, cpu->H);
             break;
         case 0x95:	// SUB A, L
+            cpu->A = CPU_op_sub(cpu, cpu->A, cpu->L);
             break;
         case 0x96:	// SUB A, (HL)
+            cpu->A = CPU_op_sub(cpu, cpu->A, ram[cpu->HL]);
             break;
         case 0xD6:	// SUB A, n
+            cpu->A = CPU_op_sub(cpu, cpu->A, ram[++cpu->PC]);
             break;
+
+
         case 0x9F:	// SBC A, A
             break;
         case 0x98:	// SBC A, B
