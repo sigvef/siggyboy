@@ -30,6 +30,26 @@ uint8_t CPU_op_sub(CPU*cpu, uint8_t a, uint8_t b){
 }
 
 
+uint8_t CPU_op_and(CPU*cpu, uint8_t a, uint8_t b){
+    uint8_t result = a & b;
+    cpu->z =  result ? 0 : 1;
+	cpu->h = 1;
+    cpu->n = 0;
+	cpu->cy = 0;
+    return result;
+}
+
+
+uint8_t CPU_op_or(CPU*cpu, uint8_t a, uint8_t b){
+    uint8_t result = a | b;
+    cpu->z =  result ? 0 : 1;
+	cpu->h = 0;
+    cpu->n = 0;
+	cpu->cy = 0;
+    return result;
+}
+
+
 /* inspired by https://gbemulator.googlecode.com/svn/trunk/src/core.c */
 
 /* a good resource is page 84- of http://chrisantonellis.com/files/gameboy/gb-programming-manual.pdf */
@@ -460,77 +480,119 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
 
 
         case 0x9F:	// SBC A, A
+            cpu->A = CPU_op_sub(cpu, cpu->A - cpu->cy, cpu->A);
             break;
         case 0x98:	// SBC A, B
+            cpu->A = CPU_op_sub(cpu, cpu->A - cpu->cy, cpu->B);
             break;
         case 0x99:	// SBC A, C
+            cpu->A = CPU_op_sub(cpu, cpu->A - cpu->cy, cpu->C);
             break;
         case 0x9A:	// SBC A, D
+            cpu->A = CPU_op_sub(cpu, cpu->A - cpu->cy, cpu->D);
             break;
         case 0x9B:	// SBC A, E
+            cpu->A = CPU_op_sub(cpu, cpu->A - cpu->cy, cpu->E);
             break;
         case 0x9C:	// SBC A, H
+            cpu->A = CPU_op_sub(cpu, cpu->A - cpu->cy, cpu->H);
             break;
         case 0x9D:	// SBC A, L
+            cpu->A = CPU_op_sub(cpu, cpu->A - cpu->cy, cpu->L);
             break;
         case 0x9E:	// SBC A, (HL)
+            cpu->A = CPU_op_sub(cpu, cpu->A - cpu->cy, ram[cpu->HL]);
             break;
         case 0xDE:	// SBC A, n
+            cpu->A = CPU_op_sub(cpu, cpu->A - cpu->cy, ram[++cpu->PC]);
             break;
+
+
         case 0xA7:	// AND A
             break;
         case 0xA0:	// AND B
+            cpu->A = CPU_op_and(cpu, cpu->A, cpu->B);
             break;
         case 0xA1:	// AND C
+            cpu->A = CPU_op_and(cpu, cpu->A, cpu->C);
             break;
         case 0xA2:	// AND D
+            cpu->A = CPU_op_and(cpu, cpu->A, cpu->D);
             break;
         case 0xA3:	// AND E
+            cpu->A = CPU_op_and(cpu, cpu->A, cpu->E);
             break;
         case 0xA4:	// AND H
+            cpu->A = CPU_op_and(cpu, cpu->A, cpu->H);
             break;
         case 0xA5:	// AND L
+            cpu->A = CPU_op_and(cpu, cpu->A, cpu->L);
             break;
         case 0xA6:	// AND (HL)
+            cpu->A = CPU_op_and(cpu, cpu->A, ram[cpu->HL]);
             break;
         case 0xE6:	// AND n
+            cpu->A = CPU_op_and(cpu, cpu->A, ram[++cpu->PC]);
             break;
+
+
         case 0xB7:	// OR A
+            cpu->A = CPU_op_or(cpu, cpu->A, cpu->A);
             break;
         case 0xB0:	// OR B
+            cpu->A = CPU_op_or(cpu, cpu->A, cpu->B);
             break;
         case 0xB1:	// OR C
+            cpu->A = CPU_op_or(cpu, cpu->A, cpu->C);
             break;
         case 0xB2:	// OR D
+            cpu->A = CPU_op_or(cpu, cpu->A, cpu->D);
             break;
         case 0xB3:	// OR E
+            cpu->A = CPU_op_or(cpu, cpu->A, cpu->E);
             break;
         case 0xB4:	// OR H
+            cpu->A = CPU_op_or(cpu, cpu->A, cpu->H);
             break;
         case 0xB5:	// OR L
+            cpu->A = CPU_op_or(cpu, cpu->A, cpu->L);
             break;
         case 0xB6:	// OR (HL)
+            cpu->A = CPU_op_or(cpu, cpu->A, ram[cpu->HL]);
             break;
         case 0xF6:	// OR n
+            cpu->A = CPU_op_or(cpu, cpu->A, ram[++cpu->PC]);
             break;
+
+
         case 0xAF:	// XOR A
             break;
         case 0xA8:	// XOR B
+            cpu->A ^= cpu->B;
             break;
         case 0xA9:	// XOR C
+            cpu->A ^= cpu->C;
             break;
         case 0xAA:	// XOR D
+            cpu->A ^= cpu->D;
             break;
         case 0xAB:	// XOR E
+            cpu->A ^= cpu->E;
             break;
         case 0xAC:	// XOR H
+            cpu->A ^= cpu->H;
             break;
         case 0xAD:	// XOR L
+            cpu->A ^= cpu->L;
             break;
         case 0xAE:	// XOR (HL)
+            cpu->A ^= ram[cpu->HL];
             break;
         case 0xEE:	// XOR n
+            cpu->A ^= ram[++cpu->PC];
             break;
+
+
         case 0xBF:	// CP A
             break;
         case 0xB8:	// CP B
