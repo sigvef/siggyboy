@@ -25,7 +25,8 @@ uint8_t CPU_op_add(CPU*cpu, uint8_t a, uint8_t b){
 /* a good resource is page 84- of http://chrisantonellis.com/files/gameboy/gb-programming-manual.pdf */
 
 
-void CPU_process_instruction(CPU*cpu, int opcode){
+void CPU_process_instruction(CPU*cpu, uint8_t* ram){
+    int opcode = ram[cpu->PC];
     switch(opcode){
         /* 8 bit loads, immediate to register */
         /* TODO: actually read next byte, increment PC etc */
@@ -77,7 +78,7 @@ void CPU_process_instruction(CPU*cpu, int opcode){
             cpu->A = cpu->L;
             break;
         case 0x7E: /* LD A, (HL) */
-            /* TODO */
+            cpu->A = ram[cpu->HL];
             break;
 
         case 0x40:  /* LD B, B */
@@ -98,7 +99,7 @@ void CPU_process_instruction(CPU*cpu, int opcode){
             cpu->B = cpu->L;
             break;
         case 0x46:  /* LD B, (HL) */
-            /* TODO */
+            cpu->B = ram[cpu->HL];
             break;
 
         case 0x48:  /* LD C, B */
@@ -119,7 +120,7 @@ void CPU_process_instruction(CPU*cpu, int opcode){
             cpu->C = cpu->L;
             break;
         case 0x4E:  /* LD C, (HL) */
-            /* TODO */
+            cpu->C = ram[cpu->HL];
             break;
 
         case 0x50:  /* LD D, B */
@@ -140,7 +141,7 @@ void CPU_process_instruction(CPU*cpu, int opcode){
             cpu->D = cpu->L;
             break;
         case 0x56:  /* LD D, (HL) */
-            /* TODO */
+            cpu->D = ram[cpu->HL];
             break;
 
         case 0x58:  /* LD E, B */
@@ -161,7 +162,7 @@ void CPU_process_instruction(CPU*cpu, int opcode){
             cpu->E = cpu->L;
             break;
         case 0x5E:  /* LD E, (HL) */
-            /* TODO */
+            cpu->E = ram[cpu->HL];
             break;
 
         case 0x60:  /* LD H, B */
@@ -182,7 +183,7 @@ void CPU_process_instruction(CPU*cpu, int opcode){
             cpu->H = cpu->L;
             break;
         case 0x66:  /* LD H, (HL) */
-            /* TODO */
+            cpu->H = ram[cpu->HL];
             break;
 
         case 0x68:  /* LD L, B */
@@ -203,32 +204,45 @@ void CPU_process_instruction(CPU*cpu, int opcode){
         case 0x6D:  /* LD L, L */
             break;
         case 0x6E:  /* LD L, (HL) */
-            /* TODO */
+            cpu->L = ram[cpu->HL];
             break;
 
 
             /* 8bit loads: reg -> (HL) */
         case 0x70:  /* LD (HL), B */
+            ram[cpu->HL] = cpu->B;
             break;
         case 0x71:  /* LD (HL), C */
+            ram[cpu->HL] = cpu->C;
             break;
         case 0x72:  /* LD (HL), D */
+            ram[cpu->HL] = cpu->D;
             break;
         case 0x73:  /* LD (HL), E */
+            ram[cpu->HL] = cpu->E;
             break;
         case 0x74:  /* LD (HL), H */
+            ram[cpu->HL] = cpu->H;
             break;
         case 0x75:  /* LD (HL), L */
+            ram[cpu->HL] = cpu->L;
             break;
         case 0x36:  /* LD (HL), n */
+            ram[cpu->HL] = ram[++cpu->PC];
             break;
         case 0x0A:  /* LD A, (BC) */
+            cpu->A = ram[cpu->BC];
             break;
         case 0x1A:  /* LD A, (DE) */
+            cpu->A = ram[cpu->DE];
             break;
         case 0xFA:  /* LD A, (nn) */
+            ;uint16_t immediate = ram[++cpu->PC];
+            immediate = (immediate << 8) | ram[++cpu->PC];
+            cpu->A = ram[immediate];
             break;
         case 0x3E:  /* LD A, n */
+            cpu->A = ram[++cpu->PC];
             break;
         case 0x47:  /* LD B, A */
             cpu->B = cpu->A;
@@ -249,16 +263,24 @@ void CPU_process_instruction(CPU*cpu, int opcode){
             cpu->L = cpu->A;
             break;
         case 0x02:  /* LD (BC), A */
+            ram[cpu->BC] = cpu->A;
             break;
         case 0x12:  /* LD (DE), A */
+            ram[cpu->DE] = cpu->A;
             break;
         case 0x77:  /* LD (HL), A */
+            ram[cpu->HL] = cpu->A;
             break;
         case 0xEA:  /* LD (nn), A */
+            immediate = ram[++cpu->PC];
+            immediate = (immediate << 8) | ram[++cpu->PC];
+            ram[immediate] = cpu->A;
             break;
         case 0xF2:  /* LD A, (C) */
+            cpu->A = ram[cpu->A];
             break;
         case 0xE2:  /* LD (C), A */
+            ram[cpu->C] = cpu->A;
             break;
 
 
@@ -614,4 +636,7 @@ void CPU_process_instruction(CPU*cpu, int opcode){
         default:
             break;
     }
+
+
+    cpu->PC++;
 }

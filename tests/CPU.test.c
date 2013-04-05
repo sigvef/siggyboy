@@ -2,6 +2,7 @@
 #include "minunit.h"
 
 CPU cpu;
+uint8_t ram[0x8000];
 
 /* tests the reset functionality of the CPU */
 MU_TEST(reset){
@@ -58,8 +59,10 @@ MU_TEST(instructions_ld_register_to_register){
     /* act */
     CPU_reset(&cpu);
     cpu.BC = 0xA952;
-    CPU_process_instruction(&cpu, 0x51); /* LD D, C */
-    CPU_process_instruction(&cpu, 0x48); /* LD C, B */
+    ram[0x100] = 0x51; /* LD D, C */
+    ram[0x101] = 0x48; /* LD C, B */
+    CPU_process_instruction(&cpu, ram);
+    CPU_process_instruction(&cpu, ram);
     
     /* assert */
     mu_assert_int_eq(0xA9, cpu.C);
@@ -74,7 +77,8 @@ MU_TEST(instructions_add){
     CPU_reset(&cpu);
     cpu.A = 0x3A;
     cpu.B = 0xC6;
-    CPU_process_instruction(&cpu, 0x80); /* ADD A, B */
+    ram[0x100] = 0x80; /* ADD A, B */
+    CPU_process_instruction(&cpu, ram);
     
     /* assert */
     mu_assert_int_eq(0x00, cpu.A);
@@ -87,7 +91,8 @@ MU_TEST(instructions_add){
     CPU_reset(&cpu);
     cpu.A = 0x3A;
     cpu.B = 0xC5;
-    CPU_process_instruction(&cpu, 0x80); /* ADD A, B */
+    ram[0x100] = 0x80; /* ADD A, B */
+    CPU_process_instruction(&cpu, ram);
     
     /* assert */
     mu_assert_int_eq(0xFF, cpu.A);
