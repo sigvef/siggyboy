@@ -12,7 +12,7 @@ MU_TEST(reset){
     /* assert */
     mu_assert_int_eq(0, cpu.AF);
     mu_assert_int_eq(0, cpu.A);
-    mu_assert_int_eq(0, cpu.zf);
+    mu_assert_int_eq(0, cpu.z);
     mu_assert_int_eq(0, cpu.n);
     mu_assert_int_eq(0, cpu.h);
     mu_assert_int_eq(0, cpu.cy);
@@ -46,7 +46,7 @@ MU_TEST(unionification){
     mu_assert_int_eq(0xA952, cpu.AF);
     mu_assert_int_eq(0x52, cpu.F);
     mu_assert_int_eq(0xA9, cpu.A);
-    mu_assert_int_eq(0, cpu.zf);
+    mu_assert_int_eq(0, cpu.z);
     mu_assert_int_eq(1, cpu.n);
     mu_assert_int_eq(0, cpu.h);
     mu_assert_int_eq(1, cpu.cy);
@@ -68,11 +68,41 @@ MU_TEST(instructions_ld_register_to_register){
 }
 
 
+MU_TEST(instructions_add){
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.A = 0x3A;
+    cpu.B = 0xC6;
+    CPU_process_instruction(&cpu, 0x80); /* ADD A, B */
+    
+    /* assert */
+    mu_assert_int_eq(0x00, cpu.A);
+    mu_assert_int_eq(1, cpu.z);
+    mu_assert_int_eq(1, cpu.h);
+    mu_assert_int_eq(0, cpu.n);
+    mu_assert_int_eq(1, cpu.cy);
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.A = 0x3A;
+    cpu.B = 0xC5;
+    CPU_process_instruction(&cpu, 0x80); /* ADD A, B */
+    
+    /* assert */
+    mu_assert_int_eq(0xFF, cpu.A);
+    mu_assert_int_eq(0, cpu.z);
+    mu_assert_int_eq(0, cpu.h);
+    mu_assert_int_eq(0, cpu.n);
+    mu_assert_int_eq(0, cpu.cy);
+}
+
 
 MU_TEST_SUITE(cpu_suite){
     MU_RUN_TEST(reset);
     MU_RUN_TEST(unionification);
     MU_RUN_TEST(instructions_ld_register_to_register);
+    MU_RUN_TEST(instructions_add);
 }
 
 int main(int argc, char *argv[]) {

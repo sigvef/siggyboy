@@ -18,7 +18,7 @@ typedef struct{
                     uint8_t cy   : 1; /* carry flag */
                     uint8_t h    : 1; /* half carry flag */
                     uint8_t n    : 1; /* add/sub flag */
-                    uint8_t zf   : 1; /* zero flag */
+                    uint8_t z    : 1; /* zero flag */
                 };
                 uint8_t F;
             };
@@ -57,5 +57,6 @@ typedef struct{
 
 void CPU_reset(CPU*cpu);
 void CPU_process_instruction(CPU*cpu, int opcode);
+uint8_t CPU_op_add(CPU*cpu, uint8_t a, uint8_t b);
 
 #endif

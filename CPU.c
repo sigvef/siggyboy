@@ -10,7 +10,21 @@ void CPU_reset(CPU*cpu){
 }
 
 
+uint8_t CPU_op_add(CPU*cpu, uint8_t a, uint8_t b){
+    uint8_t result = a + b;
+    cpu->z = result ? 0 : 1;
+	cpu->h = (0x0F - (a & 0x0F) < (b & 0x0F)) ? 1 : 0;
+    cpu->n = 0;
+	cpu->cy = (0xFF - a < b) ? 1 : 0;
+    return result;
+}
+
+
 /* inspired by https://gbemulator.googlecode.com/svn/trunk/src/core.c */
+
+/* a good resource is page 84- of http://chrisantonellis.com/files/gameboy/gb-programming-manual.pdf */
+
+
 void CPU_process_instruction(CPU*cpu, int opcode){
     switch(opcode){
         /* 8 bit loads, immediate to register */
@@ -217,16 +231,22 @@ void CPU_process_instruction(CPU*cpu, int opcode){
         case 0x3E:  /* LD A, n */
             break;
         case 0x47:  /* LD B, A */
+            cpu->B = cpu->A;
             break;
         case 0x4F:  /* LD C, A */
+            cpu->C = cpu->A;
             break;
         case 0x57:  /* LD D, A */
+            cpu->D = cpu->A;
             break;
         case 0x5F:  /* LD E, A */
+            cpu->E = cpu->A;
             break;
         case 0x67:  /* LD H, A */
+            cpu->H = cpu->A;
             break;
         case 0x6F:  /* LD L, A */
+            cpu->L = cpu->A;
             break;
         case 0x02:  /* LD (BC), A */
             break;
@@ -272,6 +292,8 @@ void CPU_process_instruction(CPU*cpu, int opcode){
             break;
         case 0x08: // LD (nn), SP
             break;
+
+
         case 0xF5:	// PUSH AF
             break;
         case 0xC5:	// PUSH BC
@@ -288,19 +310,29 @@ void CPU_process_instruction(CPU*cpu, int opcode){
             break;
         case 0xE1:	// POP HL
             break;
+
+
+        /* ADD */
         case 0x87:	// ADD A, A
+            cpu->A = CPU_op_add(cpu, cpu->A, cpu->A);
             break;
         case 0x80:	// ADD A, B
+            cpu->A = CPU_op_add(cpu, cpu->A, cpu->B);
             break;
         case 0x81:	// ADD A, C
+            cpu->A = CPU_op_add(cpu, cpu->A, cpu->C);
             break;
         case 0x82:	// ADD A, D
+            cpu->A = CPU_op_add(cpu, cpu->A, cpu->D);
             break;
         case 0x83:	// ADD A, E
+            cpu->A = CPU_op_add(cpu, cpu->A, cpu->E);
             break;
         case 0x84:	// ADD A, H
+            cpu->A = CPU_op_add(cpu, cpu->A, cpu->H);
             break;
         case 0x85:	// ADD A, L
+            cpu->A = CPU_op_add(cpu, cpu->A, cpu->L);
             break;
         case 0x86:	// ADD A, (HL)
             break;
