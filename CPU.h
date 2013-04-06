@@ -2,6 +2,7 @@
 #define CPU_H
 
 #include <stdint.h>
+#include "Memory.h"
 
 typedef struct{
 
@@ -56,7 +57,8 @@ typedef struct{
 } CPU;
 
 void CPU_reset(CPU*cpu);
-void CPU_process_instruction(CPU*cpu, uint8_t* ram);
+void CPU_process_instruction(CPU*cpu, Memory* mem);
 uint8_t CPU_op_add(CPU*cpu, uint8_t a, uint8_t b);
+void CPU_op_push(CPU*cpu, Memory* mem, uint16_t value);
 
 #endif

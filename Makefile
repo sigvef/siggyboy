@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -g -O2 -std=gnu99
-OBJECTS = CPU.o Memory.o
+OBJECTS = CPU.o Memory.o Cartridge.o
 TESTS = tests/CPU.test.o tests/Memory.test.o
 ODIR = obj
 TESTDIR = tests
