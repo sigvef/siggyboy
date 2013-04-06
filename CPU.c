@@ -788,6 +788,7 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
         case 0x27:   // DAA
             break;
         case 0x2F:   // CPL
+            cpu->A = ~cpu->A;
             break;
         case 0x3F:   // CCF
             break;
