@@ -8,6 +8,9 @@ TESTDIR = tests
 main : emulator
 	gcc main.c -O2 -Llib -g -lgbc -o bin/siggyboy
 
+run : main
+	bin/siggyboy
+
 emulator : $(OBJECTS)
 	ar rcs lib/libgbc.a $(patsubst %, $(ODIR)/%,$(OBJECTS))
 
