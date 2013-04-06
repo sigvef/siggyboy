@@ -32,7 +32,7 @@ MU_TEST(reset){
     mu_assert_int_eq(0, cpu.L);
 
     mu_assert_int_eq(0x100, cpu.PC);
-    mu_assert_int_eq(0xFFFF, cpu.SP);
+    mu_assert_int_eq(0xFFFE, cpu.SP);
 }
 
 

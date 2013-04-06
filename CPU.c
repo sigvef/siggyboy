@@ -6,7 +6,7 @@ void CPU_reset(CPU*cpu){
     cpu->BC = 0;
     cpu->DE = 0;
     cpu->HL = 0;
-    cpu->SP = 0xFFFF;
+    cpu->SP = 0xFFFE;
     cpu->PC = 0x100;
 }
 
