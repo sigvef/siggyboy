@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "CPU.h"
 #include "Memory.h"
 
@@ -122,7 +123,7 @@ uint16_t CPU_op_pop(CPU*cpu, Memory* mem){
 
 void CPU_process_instruction(CPU*cpu, Memory* mem){
     int opcode = Memory_read_8(mem, cpu->PC++);
-    printf("opcode: 0x%X\n", opcode);
+    //printf("opcode: 0x%X\n", opcode);
     switch(opcode){
         /* 8 bit loads, immediate to register */
         /* TODO: actually read next byte, increment PC etc */

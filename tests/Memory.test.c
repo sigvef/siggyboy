@@ -64,8 +64,8 @@ MU_TEST(ROM_bank_n){
 
     /* assert */
     mu_assert_int_eq(0xECC0, Memory_read_16(mem, location));
-    mu_assert_int_eq(0xEC, mem->ROM_bank_n[location-offset]);
-    mu_assert_int_eq(0xC0, mem->ROM_bank_n[location-offset+1]);
+    mu_assert_int_eq(0xC0, mem->ROM_bank_n[location-offset]);
+    mu_assert_int_eq(0xEC, mem->ROM_bank_n[location-offset+1]);
 }
 
 
@@ -81,8 +81,8 @@ MU_TEST(external_RAM){
 
     /* assert */
     mu_assert_int_eq(0xECC0, Memory_read_16(mem, location));
-    mu_assert_int_eq(0xEC, mem->external_RAM[location-offset]);
-    mu_assert_int_eq(0xC0, mem->external_RAM[location-offset+1]);
+    mu_assert_int_eq(0xC0, mem->external_RAM[location-offset]);
+    mu_assert_int_eq(0xEC, mem->external_RAM[location-offset+1]);
 }
 
 
@@ -96,8 +96,8 @@ MU_TEST(VRAM_banks){
 
     /* assert */
     mu_assert_int_eq(0xECC0, Memory_read_16(mem, location));
-    mu_assert_int_eq(0xEC, mem->VRAM[location-offset]);
-    mu_assert_int_eq(0xC0, mem->VRAM[location-offset+1]);
+    mu_assert_int_eq(0xC0, mem->VRAM[location-offset]);
+    mu_assert_int_eq(0xEC, mem->VRAM[location-offset+1]);
 }
 
 
@@ -111,8 +111,8 @@ MU_TEST(WRAM_bank_0){
 
     /* assert */
     mu_assert_int_eq(0xECC0, Memory_read_16(mem, location));
-    mu_assert_int_eq(0xEC, mem->WRAM_bank_0[location-offset]);
-    mu_assert_int_eq(0xC0, mem->WRAM_bank_0[location-offset+1]);
+    mu_assert_int_eq(0xC0, mem->WRAM_bank_0[location-offset]);
+    mu_assert_int_eq(0xEC, mem->WRAM_bank_0[location-offset+1]);
 }
 
 
@@ -126,8 +126,8 @@ MU_TEST(WRAM_bank_1){
 
     /* assert */
     mu_assert_int_eq(0xECC0, Memory_read_16(mem, location));
-    mu_assert_int_eq(0xEC, mem->WRAM_bank_1[location-offset]);
-    mu_assert_int_eq(0xC0, mem->WRAM_bank_1[location-offset+1]);
+    mu_assert_int_eq(0xC0, mem->WRAM_bank_1[location-offset]);
+    mu_assert_int_eq(0xEC, mem->WRAM_bank_1[location-offset+1]);
 }
 
 
@@ -141,8 +141,8 @@ MU_TEST(ECHO){
 
     /* assert */
     mu_assert_int_eq(0xECC0, Memory_read_16(mem, location));
-    mu_assert_int_eq(0xEC, mem->WRAM_bank_0[location-offset]);
-    mu_assert_int_eq(0xC0, mem->WRAM_bank_0[location-offset+1]);
+    mu_assert_int_eq(0xC0, mem->WRAM_bank_0[location-offset]);
+    mu_assert_int_eq(0xEC, mem->WRAM_bank_0[location-offset+1]);
 }
 
 
@@ -156,8 +156,8 @@ MU_TEST(OAM){
 
     /* assert */
     mu_assert_int_eq(0xECC0, Memory_read_16(mem, location));
-    mu_assert_int_eq(0xEC, mem->OAM[location-offset]);
-    mu_assert_int_eq(0xC0, mem->OAM[location-offset+1]);
+    mu_assert_int_eq(0xC0, mem->OAM[location-offset]);
+    mu_assert_int_eq(0xEC, mem->OAM[location-offset+1]);
 }
 
 
@@ -176,8 +176,8 @@ MU_TEST(HRAM){
 
     /* assert */
     mu_assert_int_eq(0xECC0, Memory_read_16(mem, location));
-    mu_assert_int_eq(0xEC, mem->HRAM[location-offset]);
-    mu_assert_int_eq(0xC0, mem->HRAM[location-offset+1]);
+    mu_assert_int_eq(0xC0, mem->HRAM[location-offset]);
+    mu_assert_int_eq(0xEC, mem->HRAM[location-offset+1]);
 }
 
 

@@ -41,10 +41,12 @@ Memory* Memory_create(){
 
 uint16_t Memory_read_16(Memory* mem, uint16_t location){
 
+    //printf("Memory_read_16( mem: %p, location: 0x%X)\n", mem, location);
+
     uint8_t* source = Memory_get_source(mem, &location);
 
     uint16_t data = source[location++];
-    data = (data << 8) | source[location];
+    data = (source[location] << 8) | data;
     return data; 
 }
 
@@ -61,8 +63,8 @@ void Memory_write_16(Memory* mem, uint16_t location, uint16_t value){
 
     uint8_t* source = Memory_get_source(mem, &location);
 
-    source[location++] = value >> 8;
-    source[location] = value & 0xFF;
+    source[location++] = value & 0xFF;
+    source[location] = value >> 8;
 }
 
 

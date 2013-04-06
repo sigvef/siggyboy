@@ -18,7 +18,7 @@ int main(){
     CPU_reset(&cpu);
 
     while(!cpu.stopped){
-        printf("PC: 0x%X\n", cpu.PC);
+        //printf("PC: 0x%X\n", cpu.PC);
         CPU_process_instruction(&cpu, mem);
     }
 

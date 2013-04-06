@@ -568,7 +568,7 @@ MU_TEST(instructions_jp){
     CPU_process_instruction(&cpu, mem);
     
     /* assert */
-    mu_assert_int_eq(0xFF, cpu.PC);
+    mu_assert_int_eq(0xFF00, cpu.PC);
 
     /* act */
     CPU_reset(&cpu);
@@ -578,7 +578,7 @@ MU_TEST(instructions_jp){
     CPU_process_instruction(&cpu, mem);
     
     /* assert */
-    mu_assert_int_eq(0xFF, cpu.PC);
+    mu_assert_int_eq(0xFF00, cpu.PC);
 }
 
 
