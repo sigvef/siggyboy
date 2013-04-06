@@ -96,6 +96,21 @@ uint16_t CPU_op_add_16(CPU*cpu, uint16_t a, uint16_t b){
     return result;
 }
 
+void CPU_op_push(CPU*cpu, uint8_t* ram, uint16_t value){
+    uint8_t low, high;
+    low = value & 0xFF;
+    high = (value >> 8) & 0xFF;
+    ram[--cpu->SP] = low;
+    ram[--cpu->SP] = high;
+}
+
+uint16_t CPU_op_pop(CPU*cpu, uint8_t* ram){
+    uint8_t low, high;
+    high = ram[cpu->SP++];
+    low = ram[cpu->SP++];
+    return (high << 8) | low;
+}
+
 
 /* inspired by https://gbemulator.googlecode.com/svn/trunk/src/core.c */
 
@@ -421,36 +436,28 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
 
 
         case 0xF5:	// PUSH AF
-            ram[--cpu->SP] = cpu->A;
-            ram[--cpu->SP] = cpu->F;
+            CPU_op_push(cpu, ram, cpu->AF);
             break;
         case 0xC5:	// PUSH BC
-            ram[--cpu->SP] = cpu->C;
-            ram[--cpu->SP] = cpu->B;
+            CPU_op_push(cpu, ram, cpu->BC);
             break;
         case 0xD5:	// PUSH DE
-            ram[--cpu->SP] = cpu->E;
-            ram[--cpu->SP] = cpu->D;
+            CPU_op_push(cpu, ram, cpu->DE);
             break;
         case 0xE5:	// PUSH HL
-            ram[--cpu->SP] = cpu->H;
-            ram[--cpu->SP] = cpu->L;
+            CPU_op_push(cpu, ram, cpu->HL);
             break;
         case 0xF1:	// POP AF
-            cpu->A = ram[cpu->SP++];
-            cpu->F = ram[cpu->SP++];
+            cpu->AF = CPU_op_pop(cpu, ram);
             break;
         case 0xC1:	// POP BC
-            cpu->B = ram[cpu->SP++];
-            cpu->C = ram[cpu->SP++];
+            cpu->BC = CPU_op_pop(cpu, ram);
             break;
         case 0xD1:	// POP DE
-            cpu->D = ram[cpu->SP++];
-            cpu->E = ram[cpu->SP++];
+            cpu->DE = CPU_op_pop(cpu, ram);
             break;
         case 0xE1:	// POP HL
-            cpu->L = ram[cpu->SP++];
-            cpu->H = ram[cpu->SP++];
+            cpu->HL = CPU_op_pop(cpu, ram);
             break;
 
 
@@ -905,8 +912,7 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
 
 
         case 0xCD:	// CALL nn
-            ram[--cpu->SP] = (cpu->PC >> 8) & 0xF0;
-            ram[--cpu->SP] = cpu->PC & 0x0F;
+            CPU_op_push(cpu, ram, cpu->PC);
             immediate = ram[++cpu->PC];
             immediate = (immediate << 8) | ram[++cpu->PC];
             cpu->PC = immediate - 1;
@@ -915,8 +921,7 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             immediate = ram[++cpu->PC];
             immediate = (immediate << 8) | ram[++cpu->PC];
             if(cpu->z == 0){
-                ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
-                ram[--cpu->SP] = cpu->PC & 0x0F;
+                CPU_op_push(cpu, ram, cpu->PC);
                 cpu->PC = immediate - 1;
             }
             break;
@@ -924,8 +929,7 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             immediate = ram[++cpu->PC];
             immediate = (immediate << 8) | ram[++cpu->PC];
             if(cpu->z == 1){
-                ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
-                ram[--cpu->SP] = cpu->PC & 0x0F;
+                CPU_op_push(cpu, ram, cpu->PC);
                 cpu->PC = immediate - 1;
             }
             break;
@@ -933,8 +937,7 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             immediate = ram[++cpu->PC];
             immediate = (immediate << 8) | ram[++cpu->PC];
             if(cpu->cy == 0){
-                ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
-                ram[--cpu->SP] = cpu->PC & 0x0F;
+                CPU_op_push(cpu, ram, cpu->PC);
                 cpu->PC = immediate - 1;
             }
             break;
@@ -942,92 +945,71 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             immediate = ram[++cpu->PC];
             immediate = (immediate << 8) | ram[++cpu->PC];
             if(cpu->cy == 1){
-                ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
-                ram[--cpu->SP] = cpu->PC & 0x0F;
+                CPU_op_push(cpu, ram, cpu->PC);
                 cpu->PC = immediate - 1;
             }
             break;
 
 
         case 0xC7:	// RST 0x00
-            ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
-            ram[--cpu->SP] = cpu->PC & 0x0F;
+            CPU_op_push(cpu, ram, cpu->PC);
             cpu->PC = 0x00;
             break;
         case 0xCF:	// RST 0x08
-            ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
-            ram[--cpu->SP] = cpu->PC & 0x0F;
+            CPU_op_push(cpu, ram, cpu->PC);
             cpu->PC = 0x08;
             break;
         case 0xD7:	// RST 0x10
-            ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
-            ram[--cpu->SP] = cpu->PC & 0x0F;
+            CPU_op_push(cpu, ram, cpu->PC);
             cpu->PC = 0x10;
             break;
         case 0xDF:	// RST 0x18
-            ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
-            ram[--cpu->SP] = cpu->PC & 0x0F;
+            CPU_op_push(cpu, ram, cpu->PC);
             cpu->PC = 0x18;
             break;
         case 0xE7:	// RST 0x20
-            ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
-            ram[--cpu->SP] = cpu->PC & 0x0F;
+            CPU_op_push(cpu, ram, cpu->PC);
             cpu->PC = 0x20;
             break;
         case 0xEF:	// RST 0x28
-            ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
-            ram[--cpu->SP] = cpu->PC & 0x0F;
+            CPU_op_push(cpu, ram, cpu->PC);
             cpu->PC = 0x28;
             break;
         case 0xF7:	// RST 0x30
-            ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
-            ram[--cpu->SP] = cpu->PC & 0x0F;
+            CPU_op_push(cpu, ram, cpu->PC);
             cpu->PC = 0x30;
             break;
         case 0xFF:	// RST 0x38
-            ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
-            ram[--cpu->SP] = cpu->PC & 0x0F;
+            CPU_op_push(cpu, ram, cpu->PC);
             cpu->PC = 0x38;
             break;
 
 
         case 0xC9:	// RET
-            ;uint16_t popped = ram[cpu->SP++];
-            popped = (popped << 8) | ram[cpu->SP++];
-            cpu->PC = popped;
+            cpu->PC = CPU_op_pop(cpu, ram);
             break;
         case 0xC0:	// RET NZ
             if(cpu->z == 0){
-                popped = ram[cpu->SP++];
-                popped = (popped << 8) | ram[cpu->SP++];
-                cpu->PC = popped;
+                cpu->PC = CPU_op_pop(cpu, ram);
             }
             break;
         case 0xC8:	// RET Z
             if(cpu->z == 1){
-                popped = ram[cpu->SP++];
-                popped = (popped << 8) | ram[cpu->SP++];
-                cpu->PC = popped;
+                cpu->PC = CPU_op_pop(cpu, ram);
             }
             break;
         case 0xD0:	// RET NC
             if(cpu->cy == 0){
-                popped = ram[cpu->SP++];
-                popped = (popped << 8) | ram[cpu->SP++];
-                cpu->PC = popped;
+                cpu->PC = CPU_op_pop(cpu, ram);
             }
             break;
         case 0xD8:	// RET C
             if(cpu->cy == 1){
-                popped = ram[cpu->SP++];
-                popped = (popped << 8) | ram[cpu->SP++];
-                cpu->PC = popped;
+                cpu->PC = CPU_op_pop(cpu, ram);
             }
             break;
         case 0xD9:	// RETI
-            popped = ram[cpu->SP++];
-            popped = (popped << 8) | ram[cpu->SP++];
-            cpu->PC = popped;
+            cpu->PC = CPU_op_pop(cpu, ram);
             break;
         case 0x00:  // NOP
             break;

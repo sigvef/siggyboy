@@ -2,7 +2,7 @@
 #include "minunit.h"
 
 CPU cpu;
-uint8_t ram[0x80000];
+uint8_t ram[0x10000];
 
 /* tests the reset functionality of the CPU */
 MU_TEST(reset){
