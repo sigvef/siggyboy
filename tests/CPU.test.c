@@ -535,7 +535,7 @@ MU_TEST(instructions_rra){
     cpu.A = 0x3B;
     ram[0x100] = 0x0F; /* RRCA */
     CPU_process_instruction(&cpu, ram);
-    
+
     /* assert */
     mu_assert_int_eq(0x9D, cpu.A);
     mu_assert_int_eq(0, cpu.z);
@@ -555,6 +555,54 @@ MU_TEST(instructions_rra){
     mu_assert_int_eq(0, cpu.h);
     mu_assert_int_eq(0, cpu.n);
     mu_assert_int_eq(1, cpu.cy);
+}
+
+
+MU_TEST(instructions_jp){
+
+    /* act */
+    CPU_reset(&cpu);
+    ram[0x100] = 0xC3; /* JP nn */
+    ram[0x101] = 0x00;
+    ram[0x102] = 0xFF;
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(0xFF, cpu.PC);
+
+    /* act */
+    CPU_reset(&cpu);
+    ram[0x100] = 0xC3; /* JP nn */
+    ram[0x101] = 0x00;
+    ram[0x102] = 0xFF;
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(0xFF, cpu.PC);
+}
+
+
+MU_TEST(instructions_jr){
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.A = 0x81;
+    ram[0x100] = 0x18; /* JR n */
+    ram[0x101] = 0xFF;
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(0x102 + 0xFF - 127, cpu.PC);
+
+    /* act */
+    CPU_reset(&cpu);
+    cpu.A = 0x81;
+    ram[0x100] = 0x18; /* JR n */
+    ram[0x101] = 0x00;
+    CPU_process_instruction(&cpu, ram);
+    
+    /* assert */
+    mu_assert_int_eq(0x102 - 127, cpu.PC);
 }
 
 
@@ -579,6 +627,8 @@ MU_TEST_SUITE(cpu_suite){
     MU_RUN_TEST(instructions_dec_16);
     MU_RUN_TEST(instructions_rla);
     MU_RUN_TEST(instructions_rra);
+    MU_RUN_TEST(instructions_jp);
+    MU_RUN_TEST(instructions_jr);
 }
 
 int main(int argc, char *argv[]) {

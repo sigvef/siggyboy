@@ -1,5 +1,6 @@
 #include "CPU.h"
 
+
 void CPU_reset(CPU*cpu){
     cpu->AF = 0;
     cpu->BC = 0;
@@ -833,38 +834,117 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             cpu->cy = cpu->A & 0x01;
             cpu->A = cpu->A>>1;
             break;
-        case 0xC3:  // JP imm
+
+
+        case 0xC3:  // JP nn
+            immediate = ram[++cpu->PC];
+            immediate = (immediate << 8) | ram[++cpu->PC];
+            cpu->PC = immediate - 1;
             break;
         case 0xC2: 	// JP NZ, nn
+            immediate = ram[++cpu->PC];
+            immediate = (immediate << 8) | ram[++cpu->PC];
+            if(cpu->z == 0){
+                cpu->PC = immediate - 1;
+            }
             break;
         case 0xCA: 	// JP Z, nn
+            immediate = ram[++cpu->PC];
+            immediate = (immediate << 8) | ram[++cpu->PC];
+            if(cpu->z == 1){
+                cpu->PC = immediate - 1;
+            }
             break;
         case 0xD2: 	// JP NC, nn
+            immediate = ram[++cpu->PC];
+            immediate = (immediate << 8) | ram[++cpu->PC];
+            if(cpu->cy == 0){
+                cpu->PC = immediate - 1;
+            }
             break;
         case 0xDA: 	// JP C, nn
+            immediate = ram[++cpu->PC];
+            immediate = (immediate << 8) | ram[++cpu->PC];
+            if(cpu->cy == 0){
+                cpu->PC = immediate - 1;
+            }
             break;
         case 0xE9:  // JP HL
+            cpu->PC = cpu->HL - 1;
             break;
+
+
         case 0x18:  // JR n
+            cpu->PC = cpu->PC + ram[++cpu->PC] - 127;
             break;
         case 0x20:  // JR NZ, n
+            ;int8_t possible_new_PC = cpu->PC + ram[++cpu->PC] - 127;
+            if(cpu->z == 0){
+                cpu->PC = possible_new_PC;
+            }
             break;
         case 0x28:  // JR Z, n
+            possible_new_PC = cpu->PC + ram[++cpu->PC] - 127;
+            if(cpu->z == 1){
+                cpu->PC = possible_new_PC;
+            }
             break;
         case 0x30:  // JR NC, n
+            possible_new_PC = cpu->PC + ram[++cpu->PC] - 127;
+            if(cpu->cy == 0){
+                cpu->PC = possible_new_PC;
+            }
             break;
         case 0x38:  // JR C, n
+            possible_new_PC = cpu->PC + ram[++cpu->PC] - 127;
+            if(cpu->cy == 1){
+                cpu->PC = possible_new_PC;
+            }
             break;
+
+
         case 0xCD:	// CALL nn
+            ram[--cpu->SP] = ram[++cpu->PC];
+            ram[--cpu->SP] = ram[++cpu->PC];
             break;
         case 0xC4:	// CALL NZ, nn
+            immediate = ram[++cpu->PC];
+            immediate = (immediate << 8) | ram[++cpu->PC];
+            if(cpu->z == 0){
+                ram[--cpu->SP] = (cpu->PC >> 8) & 0xF0;
+                ram[--cpu->SP] = cpu->PC & 0x0F;
+                cpu->PC = immediate;
+            }
             break;
         case 0xCC:	// CALL Z, nn
+            immediate = ram[++cpu->PC];
+            immediate = (immediate << 8) | ram[++cpu->PC];
+            if(cpu->z == 1){
+                ram[--cpu->SP] = (cpu->PC >> 8) & 0xF0;
+                ram[--cpu->SP] = cpu->PC & 0x0F;
+                cpu->PC = immediate;
+            }
             break;
         case 0xD4:	// CALL NC, nn
+            immediate = ram[++cpu->PC];
+            immediate = (immediate << 8) | ram[++cpu->PC];
+            if(cpu->cy == 0){
+                ram[--cpu->SP] = (cpu->PC >> 8) & 0xF0;
+                ram[--cpu->SP] = cpu->PC & 0x0F;
+                cpu->PC = immediate;
+            }
             break;
         case 0xDC:	// CALL C, nn
+            immediate = ram[++cpu->PC];
+            immediate = (immediate << 8) | ram[++cpu->PC];
+            if(cpu->cy == 1){
+                ram[--cpu->SP] = (cpu->PC >> 8) & 0xF0;
+                ram[--cpu->SP] = cpu->PC & 0x0F;
+                cpu->PC = immediate;
+            }
             break;
+
+
         case 0xC7:	// RST 0x00
             break;
         case 0xCF:	// RST 0x08
