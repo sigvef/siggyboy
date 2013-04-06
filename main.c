@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "CPU.h"
 #include "Memory.h"
 #include "Cartridge.h"
@@ -14,7 +15,10 @@ int main(){
 
     mem->ROM_bank_0 = cart;
 
-    while(1){
+    CPU_reset(&cpu);
+
+    while(!cpu.stopped){
+        printf("PC: 0x%X\n", cpu.PC);
         CPU_process_instruction(&cpu, mem);
     }
 

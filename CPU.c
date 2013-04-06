@@ -9,6 +9,8 @@ void CPU_reset(CPU*cpu){
     cpu->HL = 0;
     cpu->SP = 0xFFFE;
     cpu->PC = 0x100;
+
+    cpu->stopped = 0;
 }
 
 
@@ -120,6 +122,7 @@ uint16_t CPU_op_pop(CPU*cpu, Memory* mem){
 
 void CPU_process_instruction(CPU*cpu, Memory* mem){
     int opcode = Memory_read_8(mem, cpu->PC++);
+    printf("opcode: 0x%X\n", opcode);
     switch(opcode){
         /* 8 bit loads, immediate to register */
         /* TODO: actually read next byte, increment PC etc */
@@ -796,6 +799,7 @@ void CPU_process_instruction(CPU*cpu, Memory* mem){
         case 0x76:   // HALT
             break;
         case 0x10:   // STOP
+            cpu->stopped = 1;
             break;
         case 0xF3:	// DI
             break;

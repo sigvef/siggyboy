@@ -54,6 +54,8 @@ typedef struct{
     uint16_t SP;
     uint16_t PC;
 
+    int stopped;
+
 } CPU;
 
 void CPU_reset(CPU*cpu);
