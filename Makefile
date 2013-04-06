@@ -11,6 +11,9 @@ main : emulator
 run : main
 	bin/siggyboy
 
+debug : main
+	gdb -tui bin/siggyboy
+
 emulator : $(OBJECTS)
 	ar rcs lib/libgbc.a $(patsubst %, $(ODIR)/%,$(OBJECTS))
 
