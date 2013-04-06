@@ -904,74 +904,129 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
 
 
         case 0xCD:	// CALL nn
-            ram[--cpu->SP] = ram[++cpu->PC];
-            ram[--cpu->SP] = ram[++cpu->PC];
+            ram[--cpu->SP] = (cpu->PC >> 8) & 0xF0;
+            ram[--cpu->SP] = cpu->PC & 0x0F;
+            immediate = ram[++cpu->PC];
+            immediate = (immediate << 8) | ram[++cpu->PC];
+            cpu->PC = immediate - 1;
             break;
         case 0xC4:	// CALL NZ, nn
             immediate = ram[++cpu->PC];
             immediate = (immediate << 8) | ram[++cpu->PC];
             if(cpu->z == 0){
-                ram[--cpu->SP] = (cpu->PC >> 8) & 0xF0;
+                ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
                 ram[--cpu->SP] = cpu->PC & 0x0F;
-                cpu->PC = immediate;
+                cpu->PC = immediate - 1;
             }
             break;
         case 0xCC:	// CALL Z, nn
             immediate = ram[++cpu->PC];
             immediate = (immediate << 8) | ram[++cpu->PC];
             if(cpu->z == 1){
-                ram[--cpu->SP] = (cpu->PC >> 8) & 0xF0;
+                ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
                 ram[--cpu->SP] = cpu->PC & 0x0F;
-                cpu->PC = immediate;
+                cpu->PC = immediate - 1;
             }
             break;
         case 0xD4:	// CALL NC, nn
             immediate = ram[++cpu->PC];
             immediate = (immediate << 8) | ram[++cpu->PC];
             if(cpu->cy == 0){
-                ram[--cpu->SP] = (cpu->PC >> 8) & 0xF0;
+                ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
                 ram[--cpu->SP] = cpu->PC & 0x0F;
-                cpu->PC = immediate;
+                cpu->PC = immediate - 1;
             }
             break;
         case 0xDC:	// CALL C, nn
             immediate = ram[++cpu->PC];
             immediate = (immediate << 8) | ram[++cpu->PC];
             if(cpu->cy == 1){
-                ram[--cpu->SP] = (cpu->PC >> 8) & 0xF0;
+                ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
                 ram[--cpu->SP] = cpu->PC & 0x0F;
-                cpu->PC = immediate;
+                cpu->PC = immediate - 1;
             }
             break;
 
 
         case 0xC7:	// RST 0x00
+            ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
+            ram[--cpu->SP] = cpu->PC & 0x0F;
+            cpu->PC = 0x00;
             break;
         case 0xCF:	// RST 0x08
+            ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
+            ram[--cpu->SP] = cpu->PC & 0x0F;
+            cpu->PC = 0x08;
             break;
         case 0xD7:	// RST 0x10
+            ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
+            ram[--cpu->SP] = cpu->PC & 0x0F;
+            cpu->PC = 0x10;
             break;
         case 0xDF:	// RST 0x18
+            ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
+            ram[--cpu->SP] = cpu->PC & 0x0F;
+            cpu->PC = 0x18;
             break;
         case 0xE7:	// RST 0x20
+            ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
+            ram[--cpu->SP] = cpu->PC & 0x0F;
+            cpu->PC = 0x20;
             break;
         case 0xEF:	// RST 0x28
+            ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
+            ram[--cpu->SP] = cpu->PC & 0x0F;
+            cpu->PC = 0x28;
             break;
         case 0xF7:	// RST 0x30
+            ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
+            ram[--cpu->SP] = cpu->PC & 0x0F;
+            cpu->PC = 0x30;
             break;
         case 0xFF:	// RST 0x38
+            ram[--cpu->SP] = (cpu->PC & 0xF0) >> 8;
+            ram[--cpu->SP] = cpu->PC & 0x0F;
+            cpu->PC = 0x38;
             break;
+
+
         case 0xC9:	// RET
+            ;uint16_t popped = ram[cpu->SP++];
+            popped = (popped << 8) | ram[cpu->SP++];
+            cpu->PC = popped;
             break;
         case 0xC0:	// RET NZ
+            if(cpu->z == 0){
+                popped = ram[cpu->SP++];
+                popped = (popped << 8) | ram[cpu->SP++];
+                cpu->PC = popped;
+            }
             break;
         case 0xC8:	// RET Z
+            if(cpu->z == 1){
+                popped = ram[cpu->SP++];
+                popped = (popped << 8) | ram[cpu->SP++];
+                cpu->PC = popped;
+            }
             break;
         case 0xD0:	// RET NC
+            if(cpu->cy == 0){
+                popped = ram[cpu->SP++];
+                popped = (popped << 8) | ram[cpu->SP++];
+                cpu->PC = popped;
+            }
             break;
         case 0xD8:	// RET C
+            if(cpu->cy == 1){
+                popped = ram[cpu->SP++];
+                popped = (popped << 8) | ram[cpu->SP++];
+                cpu->PC = popped;
+            }
             break;
         case 0xD9:	// RETI
+            popped = ram[cpu->SP++];
+            popped = (popped << 8) | ram[cpu->SP++];
+            cpu->PC = popped;
             break;
         case 0x00:  // NOP
             break;
