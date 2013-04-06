@@ -1,10 +1,10 @@
 #include "CPU.h"
 #include "Memory.h"
-#include "Catridge.h"
+#include "Cartridge.h"
 
 CPU cpu;
 Memory* mem;
-Cartridge* cart;
+uint8_t* cart;
 
 int main(){
     
@@ -15,7 +15,7 @@ int main(){
     mem->ROM_bank_0 = cart;
 
     while(1){
-        CPU_process_instruction(cpu, mem);
+        CPU_process_instruction(&cpu, mem);
     }
 
     return 0;
