@@ -118,32 +118,32 @@ uint16_t CPU_op_pop(CPU*cpu, uint8_t* ram){
 
 
 void CPU_process_instruction(CPU*cpu, uint8_t* ram){
-    int opcode = ram[cpu->PC];
+    int opcode = ram[cpu->PC++];
     switch(opcode){
         /* 8 bit loads, immediate to register */
         /* TODO: actually read next byte, increment PC etc */
         case 0x06:
-            cpu->B = ram[++cpu->PC];
+            cpu->B = ram[cpu->PC++];
             break;
 
         case 0x0E:
-            cpu->C = ram[++cpu->PC];
+            cpu->C = ram[cpu->PC++];
             break;
 
         case 0x16:
-            cpu->D = ram[++cpu->PC];
+            cpu->D = ram[cpu->PC++];
             break;
 
         case 0x1E:
-            cpu->E = ram[++cpu->PC];
+            cpu->E = ram[cpu->PC++];
             break;
 
         case 0x26:
-            cpu->H = ram[++cpu->PC];
+            cpu->H = ram[cpu->PC++];
             break;
 
         case 0x2E:
-            cpu->L = ram[++cpu->PC];
+            cpu->L = ram[cpu->PC++];
             break;
 
 
@@ -320,7 +320,7 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             ram[cpu->HL] = cpu->L;
             break;
         case 0x36:  /* LD (HL), n */
-            ram[cpu->HL] = ram[++cpu->PC];
+            ram[cpu->HL] = ram[cpu->PC++];
             break;
         case 0x0A:  /* LD A, (BC) */
             cpu->A = ram[cpu->BC];
@@ -329,12 +329,12 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             cpu->A = ram[cpu->DE];
             break;
         case 0xFA:  /* LD A, (nn) */
-            ;uint16_t immediate = ram[++cpu->PC];
-            immediate = (immediate << 8) | ram[++cpu->PC];
+            ;uint16_t immediate = ram[cpu->PC++];
+            immediate = (immediate << 8) | ram[cpu->PC++];
             cpu->A = ram[immediate];
             break;
         case 0x3E:  /* LD A, n */
-            cpu->A = ram[++cpu->PC];
+            cpu->A = ram[cpu->PC++];
             break;
         case 0x47:  /* LD B, A */
             cpu->B = cpu->A;
@@ -364,8 +364,8 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             ram[cpu->HL] = cpu->A;
             break;
         case 0xEA:  /* LD (nn), A */
-            immediate = ram[++cpu->PC];
-            immediate = (immediate << 8) | ram[++cpu->PC];
+            immediate = ram[cpu->PC++];
+            immediate = (immediate << 8) | ram[cpu->PC++];
             ram[immediate] = cpu->A;
             break;
         case 0xF2:  /* LD A, (C) */
@@ -397,38 +397,38 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
 
             /* 16bit loads */
         case 0x01:  /* LD BC, nn */
-            immediate = ram[++cpu->PC];
-            immediate = (immediate << 8) | ram[++cpu->PC];
+            immediate = ram[cpu->PC++];
+            immediate = (immediate << 8) | ram[cpu->PC++];
             cpu->BC = immediate;
             break;
         case 0x11:  /* LD DE, nn */
-            immediate = ram[++cpu->PC];
-            immediate = (immediate << 8) | ram[++cpu->PC];
+            immediate = ram[cpu->PC++];
+            immediate = (immediate << 8) | ram[cpu->PC++];
             cpu->DE = immediate;
             break;
         case 0x21:  /* LD HL, nn */
-            immediate = ram[++cpu->PC];
-            immediate = (immediate << 8) | ram[++cpu->PC];
+            immediate = ram[cpu->PC++];
+            immediate = (immediate << 8) | ram[cpu->PC++];
             cpu->HL = immediate;
             break;
         case 0x31:  /* LD SP, nn */
-            immediate = ram[++cpu->PC];
-            immediate = (immediate << 8) | ram[++cpu->PC];
+            immediate = ram[cpu->PC++];
+            immediate = (immediate << 8) | ram[cpu->PC++];
             cpu->SP = immediate;
             break;
         case 0xF9:  /* LD SP, HL */
             cpu->SP = cpu->HL;
             break;
         case 0xF8:  /* LDHL SP, n */
-            cpu->HL = cpu->SP + ram[++cpu->PC];
+            cpu->HL = cpu->SP + ram[cpu->PC++];
             cpu->z = 0;
             cpu->h = 0; /* TODO: h should not always be 0 */
             cpu->n = 0;
             cpu->cy = 0; /* TODO: cy should not always be 0 */
             break;
         case 0x08: // LD (nn), SP
-            immediate = ram[++cpu->PC];
-            immediate = (immediate << 8) | ram[++cpu->PC];
+            immediate = ram[cpu->PC++];
+            immediate = (immediate << 8) | ram[cpu->PC++];
             cpu->BC = immediate;
             ram[immediate] = cpu->SP & 0xFF;
             ram[immediate+1] = (cpu->SP & 0xFF00) >> 8;
@@ -487,7 +487,7 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             cpu->A = CPU_op_add(cpu, cpu->A, ram[cpu->HL]);
             break;
         case 0xC6:	// ADD A, n
-            cpu->A = CPU_op_add(cpu, cpu->A, ram[++cpu->PC]);
+            cpu->A = CPU_op_add(cpu, cpu->A, ram[cpu->PC++]);
             break;
 
 
@@ -516,7 +516,7 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             cpu->A = CPU_op_add(cpu, cpu->A+cpu->cy, ram[cpu->HL]);
             break;
         case 0xCE:	// ADC A, n
-            cpu->A = CPU_op_add(cpu, cpu->A+cpu->cy, ram[++cpu->PC]);
+            cpu->A = CPU_op_add(cpu, cpu->A+cpu->cy, ram[cpu->PC++]);
             break;
 
 
@@ -545,7 +545,7 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             cpu->A = CPU_op_sub(cpu, cpu->A, ram[cpu->HL]);
             break;
         case 0xD6:	// SUB A, n
-            cpu->A = CPU_op_sub(cpu, cpu->A, ram[++cpu->PC]);
+            cpu->A = CPU_op_sub(cpu, cpu->A, ram[cpu->PC++]);
             break;
 
 
@@ -574,7 +574,7 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             cpu->A = CPU_op_sub(cpu, cpu->A - cpu->cy, ram[cpu->HL]);
             break;
         case 0xDE:	// SBC A, n
-            cpu->A = CPU_op_sub(cpu, cpu->A - cpu->cy, ram[++cpu->PC]);
+            cpu->A = CPU_op_sub(cpu, cpu->A - cpu->cy, ram[cpu->PC++]);
             break;
 
 
@@ -603,7 +603,7 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             cpu->A = CPU_op_and(cpu, cpu->A, ram[cpu->HL]);
             break;
         case 0xE6:	// AND n
-            cpu->A = CPU_op_and(cpu, cpu->A, ram[++cpu->PC]);
+            cpu->A = CPU_op_and(cpu, cpu->A, ram[cpu->PC++]);
             break;
 
 
@@ -632,7 +632,7 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             cpu->A = CPU_op_or(cpu, cpu->A, ram[cpu->HL]);
             break;
         case 0xF6:	// OR n
-            cpu->A = CPU_op_or(cpu, cpu->A, ram[++cpu->PC]);
+            cpu->A = CPU_op_or(cpu, cpu->A, ram[cpu->PC++]);
             break;
 
 
@@ -661,7 +661,7 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             cpu->A = CPU_op_xor(cpu, cpu->A, ram[cpu->HL]);
             break;
         case 0xEE:	// XOR n
-            cpu->A = CPU_op_xor(cpu, cpu->A, ram[++cpu->PC]);
+            cpu->A = CPU_op_xor(cpu, cpu->A, ram[cpu->PC++]);
             break;
 
 
@@ -690,7 +690,7 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             CPU_op_cp(cpu, cpu->A, ram[cpu->HL]);
             break;
         case 0xFE:	// CP n
-            CPU_op_cp(cpu, cpu->A, ram[++cpu->PC]);
+            CPU_op_cp(cpu, cpu->A, ram[cpu->PC++]);
             break;
 
 
@@ -759,7 +759,7 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
             cpu->HL = CPU_op_add_16(cpu, cpu->HL, cpu->SP);
             break;
         case 0xE8:	// ADD SP, n
-            cpu->SP = CPU_op_add_16(cpu, cpu->HL, ram[++cpu->PC]);
+            cpu->SP = CPU_op_add_16(cpu, cpu->HL, ram[cpu->PC++]);
             break;
 
 
@@ -845,36 +845,36 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
 
 
         case 0xC3:  // JP nn
-            immediate = ram[++cpu->PC];
-            immediate = (immediate << 8) | ram[++cpu->PC];
-            cpu->PC = immediate - 1;
+            immediate = ram[cpu->PC++];
+            immediate = (immediate << 8) | ram[cpu->PC++];
+            cpu->PC = immediate;
             break;
         case 0xC2: 	// JP NZ, nn
-            immediate = ram[++cpu->PC];
-            immediate = (immediate << 8) | ram[++cpu->PC];
+            immediate = ram[cpu->PC++];
+            immediate = (immediate << 8) | ram[cpu->PC++];
             if(cpu->z == 0){
-                cpu->PC = immediate - 1;
+                cpu->PC = immediate;
             }
             break;
         case 0xCA: 	// JP Z, nn
-            immediate = ram[++cpu->PC];
-            immediate = (immediate << 8) | ram[++cpu->PC];
+            immediate = ram[cpu->PC++];
+            immediate = (immediate << 8) | ram[cpu->PC++];
             if(cpu->z == 1){
-                cpu->PC = immediate - 1;
+                cpu->PC = immediate;
             }
             break;
         case 0xD2: 	// JP NC, nn
-            immediate = ram[++cpu->PC];
-            immediate = (immediate << 8) | ram[++cpu->PC];
+            immediate = ram[cpu->PC++];
+            immediate = (immediate << 8) | ram[cpu->PC++];
             if(cpu->cy == 0){
-                cpu->PC = immediate - 1;
+                cpu->PC = immediate;
             }
             break;
         case 0xDA: 	// JP C, nn
-            immediate = ram[++cpu->PC];
-            immediate = (immediate << 8) | ram[++cpu->PC];
+            immediate = ram[cpu->PC++];
+            immediate = (immediate << 8) | ram[cpu->PC++];
             if(cpu->cy == 0){
-                cpu->PC = immediate - 1;
+                cpu->PC = immediate;
             }
             break;
         case 0xE9:  // JP HL
@@ -883,28 +883,28 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
 
 
         case 0x18:  // JR n
-            cpu->PC = cpu->PC + ram[++cpu->PC] - 127;
+            cpu->PC = cpu->PC + 1 + ram[cpu->PC] - 127;
             break;
         case 0x20:  // JR NZ, n
-            ;int8_t possible_new_PC = cpu->PC + ram[++cpu->PC] - 127;
+            ;int8_t possible_new_PC = cpu->PC + ram[cpu->PC++] - 127;
             if(cpu->z == 0){
                 cpu->PC = possible_new_PC;
             }
             break;
         case 0x28:  // JR Z, n
-            possible_new_PC = cpu->PC + ram[++cpu->PC] - 127;
+            possible_new_PC = cpu->PC + ram[cpu->PC++] - 127;
             if(cpu->z == 1){
                 cpu->PC = possible_new_PC;
             }
             break;
         case 0x30:  // JR NC, n
-            possible_new_PC = cpu->PC + ram[++cpu->PC] - 127;
+            possible_new_PC = cpu->PC + ram[cpu->PC++] - 127;
             if(cpu->cy == 0){
                 cpu->PC = possible_new_PC;
             }
             break;
         case 0x38:  // JR C, n
-            possible_new_PC = cpu->PC + ram[++cpu->PC] - 127;
+            possible_new_PC = cpu->PC + ram[cpu->PC++] - 127;
             if(cpu->cy == 1){
                 cpu->PC = possible_new_PC;
             }
@@ -913,40 +913,40 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
 
         case 0xCD:	// CALL nn
             CPU_op_push(cpu, ram, cpu->PC);
-            immediate = ram[++cpu->PC];
-            immediate = (immediate << 8) | ram[++cpu->PC];
-            cpu->PC = immediate - 1;
+            immediate = ram[cpu->PC++];
+            immediate = (immediate << 8) | ram[cpu->PC++];
+            cpu->PC = immediate;
             break;
         case 0xC4:	// CALL NZ, nn
-            immediate = ram[++cpu->PC];
-            immediate = (immediate << 8) | ram[++cpu->PC];
+            immediate = ram[cpu->PC++];
+            immediate = (immediate << 8) | ram[cpu->PC++];
             if(cpu->z == 0){
                 CPU_op_push(cpu, ram, cpu->PC);
-                cpu->PC = immediate - 1;
+                cpu->PC = immediate;
             }
             break;
         case 0xCC:	// CALL Z, nn
-            immediate = ram[++cpu->PC];
-            immediate = (immediate << 8) | ram[++cpu->PC];
+            immediate = ram[cpu->PC++];
+            immediate = (immediate << 8) | ram[cpu->PC++];
             if(cpu->z == 1){
                 CPU_op_push(cpu, ram, cpu->PC);
-                cpu->PC = immediate - 1;
+                cpu->PC = immediate;
             }
             break;
         case 0xD4:	// CALL NC, nn
-            immediate = ram[++cpu->PC];
-            immediate = (immediate << 8) | ram[++cpu->PC];
+            immediate = ram[cpu->PC++];
+            immediate = (immediate << 8) | ram[cpu->PC++];
             if(cpu->cy == 0){
                 CPU_op_push(cpu, ram, cpu->PC);
-                cpu->PC = immediate - 1;
+                cpu->PC = immediate;
             }
             break;
         case 0xDC:	// CALL C, nn
-            immediate = ram[++cpu->PC];
-            immediate = (immediate << 8) | ram[++cpu->PC];
+            immediate = ram[cpu->PC++];
+            immediate = (immediate << 8) | ram[cpu->PC++];
             if(cpu->cy == 1){
                 CPU_op_push(cpu, ram, cpu->PC);
-                cpu->PC = immediate - 1;
+                cpu->PC = immediate;
             }
             break;
 
@@ -1017,7 +1017,4 @@ void CPU_process_instruction(CPU*cpu, uint8_t* ram){
         default:
             break;
     }
-
-
-    cpu->PC++;
 }
