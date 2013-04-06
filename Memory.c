@@ -32,16 +32,91 @@ Memory* Memory_create(){
     mem->OAM         = (uint8_t*) malloc(sizeof(uint8_t) * IO_PORTS_SIZE);
     mem->IO_ports    = (uint8_t*) malloc(sizeof(uint8_t) * IO_PORTS_SIZE);
     mem->HRAM        = (uint8_t*) malloc(sizeof(uint8_t) * HRAM_SIZE);
-    mem->IER = 0;
+    mem->IER         = (uint8_t*) malloc(sizeof(uint8_t) * 1);
 
     return mem;
 }
 
 
-void Memory_read_16(Memory* mem, uint16_t location){
-    /*
-    uint16_t data = mem[location++];
-    data = (data << 8) | mem[location];
+uint16_t Memory_read_16(Memory* mem, uint16_t location){
+
+    uint8_t* source = Memory_get_source(mem, &location);
+
+    uint16_t data = source[location++];
+    data = (data << 8) | source[location];
     return data; 
-    */
+}
+
+
+uint8_t Memory_read_8(Memory* mem, uint16_t location){
+
+    uint8_t* source = Memory_get_source(mem, &location);
+
+    return source[location]; 
+}
+
+
+void Memory_write_16(Memory* mem, uint16_t location, uint16_t value){
+
+    uint8_t* source = Memory_get_source(mem, &location);
+
+    source[location++] = value >> 8;
+    source[location] = value & 0xFF;
+}
+
+
+void Memory_write_8(Memory* mem, uint16_t location, uint8_t value){
+    uint8_t* source = Memory_get_source(mem, &location);
+    source[location] = value;
+}
+
+
+uint8_t* Memory_get_source(Memory*mem, uint16_t* location) {
+
+    uint8_t* source;
+
+    if(*location <= 0x3FFF){
+        source = mem->ROM_bank_0; 
+
+    }else if(*location <= 0x7FFF){
+        source = mem->ROM_bank_n;
+        *location -= 0x4000;
+
+    }else if(*location <= 0x9FFF){
+        source = mem->VRAM;
+        *location -= 0x8000;
+
+    }else if(*location <= 0xBFFF){
+        source = mem->external_RAM;
+        *location -= 0xA000;
+
+    }else if(*location <= 0xCFFF){
+        source = mem->WRAM_bank_0;
+        *location -= 0xC000;
+
+    }else if(*location <= 0xDFFF){
+        source = mem->WRAM_bank_1;
+        *location -= 0xD000;
+
+    }else if(*location <= 0xFDFF){
+        source = mem->ECHO;
+        *location -= 0xE000;
+
+    }else if(*location <= 0xFE9F){
+        source = mem->OAM;
+        *location -= 0xFE00; 
+
+    }else if(*location <= 0xFF7F){
+        source = mem->IO_ports;
+        *location -= 0xFF00;
+
+    }else if(*location <= 0xFFFE){
+        source = mem->HRAM; 
+        *location -= 0xFF80;
+    }else{
+        source = mem->IER;
+        *location -= 0xFFFF;
+    }
+
+    return source;
 }

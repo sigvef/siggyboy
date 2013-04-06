@@ -1,6 +1,8 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
+#include <stdint.h>
+
 #define VRAM_BANK_SIZE 0x2000
 #define WRAM_BANK_SIZE 0x1000
 #define OAM_SIZE 0xA0
@@ -23,10 +25,14 @@ typedef struct {
     uint8_t* OAM;
     uint8_t* IO_ports;
     uint8_t* HRAM;
-    uint8_t IER;
+    uint8_t* IER;
 } Memory;
 
 Memory* Memory_create();
-void Memory_read_16(Memory* mem, uint16_t location);
+uint16_t Memory_read_16(Memory* mem, uint16_t location);
+uint8_t Memory_read_8(Memory* mem, uint16_t location);
+void Memory_write_16(Memory* mem, uint16_t location, uint16_t value);
+void Memory_write_8(Memory* mem, uint16_t location, uint8_t value);
+uint8_t* Memory_get_source(Memory*mem, uint16_t* location);
 
 #endif
