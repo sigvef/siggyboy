@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#define ROM_BANK_SIZE 0x4000
 #define VRAM_BANK_SIZE 0x2000
 #define WRAM_BANK_SIZE 0x1000
 #define OAM_SIZE 0xA0
@@ -26,6 +27,7 @@ typedef struct {
     uint8_t* IO_ports;
     uint8_t* HRAM;
     uint8_t* IER;
+    uint8_t* cart;
 } Memory;
 
 Memory* Memory_create();

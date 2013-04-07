@@ -5,6 +5,9 @@
 uint8_t* Cartridge_load(const char* filename){
 
     FILE* fp = fopen(filename, "rb");
+    if(fp == NULL){
+        return NULL;
+    }
 
     fseek(fp, 0L, SEEK_END);
     long filesize = ftell(fp);
