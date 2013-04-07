@@ -31,7 +31,7 @@ typedef struct {
             union {
                 uint8_t status;
                 struct {
-                    int mode_flag: 2;
+                    unsigned int mode_flag: 2;
                     int coincidence_flag: 1;
                     int mode_0_hblank_interrupt : 1;
                     int mode_1_vblank_interrupt : 1;

@@ -54,7 +54,7 @@ uint16_t Memory_read_16(Memory* mem, uint16_t location){
 
 uint8_t Memory_read_8(Memory* mem, uint16_t location){
     
-    printf("Memory_read_8( mem: %p, location: 0x%X)\n", mem, location);
+    //printf("Memory_read_8( mem: %p, location: 0x%X)\n", mem, location);
 
     uint8_t* source = Memory_get_source(mem, &location);
 

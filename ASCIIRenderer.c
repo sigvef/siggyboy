@@ -5,7 +5,7 @@
 
 void render(LCD*lcd){
 
-    
+   printf("RENDER!\n"); 
 
 }
 

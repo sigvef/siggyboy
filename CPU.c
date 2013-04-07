@@ -393,9 +393,11 @@ void CPU_process_instruction(CPU*cpu, Memory* mem){
         case 0x22:  /* LDI (HL), A */
             Memory_write_8(mem, cpu->HL++, cpu->A);
             break;
-        case 0xE0:  /* LDH (n), A */
+        case 0xE0:  /* LDH (FF00 + n), A */
+            Memory_write_8(mem, 0xFF00 + Memory_read_8(mem, cpu->PC++), cpu->A);
             break;
-        case 0xF0:  /* LDH A, (n) */
+        case 0xF0:  /* LDH A, (FF00 + n) */
+            cpu->A = Memory_read_8(mem, 0xFF00 + Memory_read_8(mem, cpu->PC++));
             break;
 
 
@@ -878,28 +880,32 @@ void CPU_process_instruction(CPU*cpu, Memory* mem){
 
 
         case 0x18:  // JR n
-            cpu->PC = cpu->PC + 1 + Memory_read_8(mem, cpu->PC) - 127;
+            cpu->PC = cpu->PC + 1 + (int8_t) Memory_read_8(mem, cpu->PC);
             break;
         case 0x20:  // JR NZ, n
-            ;int8_t possible_new_PC = cpu->PC + 1 + Memory_read_8(mem, cpu->PC) - 127;
+            ;uint16_t possible_new_PC = cpu->PC + 1 + (int8_t) Memory_read_8(mem, cpu->PC);
+            cpu->PC++;
             if(cpu->z == 0){
                 cpu->PC = possible_new_PC;
             }
             break;
         case 0x28:  // JR Z, n
-            possible_new_PC = cpu->PC + 1 + Memory_read_8(mem, cpu->PC) - 127;
+            possible_new_PC = cpu->PC + 1 + (int8_t) Memory_read_8(mem, cpu->PC);
+            cpu->PC++;
             if(cpu->z == 1){
                 cpu->PC = possible_new_PC;
             }
             break;
         case 0x30:  // JR NC, n
-            possible_new_PC = cpu->PC + 1 + Memory_read_8(mem, cpu->PC) - 127;
+            possible_new_PC = cpu->PC + 1 + (int8_t) Memory_read_8(mem, cpu->PC);
+            cpu->PC++;
             if(cpu->cy == 0){
                 cpu->PC = possible_new_PC;
             }
             break;
         case 0x38:  // JR C, n
-            possible_new_PC = cpu->PC + 1 + Memory_read_8(mem, cpu->PC) - 127;
+            possible_new_PC = cpu->PC + 1 + (int8_t) Memory_read_8(mem, cpu->PC);
+            cpu->PC++;
             if(cpu->cy == 1){
                 cpu->PC = possible_new_PC;
             }

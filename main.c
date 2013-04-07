@@ -29,10 +29,59 @@ int main(){
 
     CPU_reset(&cpu);
 
+    int t = 0;
+
     while(!cpu.stopped){
         printf("PC: 0x%X\n", cpu.PC);
         CPU_process_instruction(&cpu, mem);
-        render(lcd);
+
+        switch(lcd->mode_flag){
+            case 0: /* during h-bank */
+                if(t >= 204){
+                    t = 0;
+                    lcd->LY++;
+
+                    if(lcd->LY == 143){
+                        lcd->mode_flag = 1; 
+                    }else{
+                        lcd->mode_flag = 2;
+                    }
+                }
+                break;
+
+            case 1: /* during v-blank */
+                if(t >= 456){
+                    t = 0;                 
+                    lcd->LY++;
+                    if(lcd->LY > 153){
+                        lcd->mode_flag = 2; 
+                        lcd->LY = 0;
+                    }
+                }
+                break;
+
+            case 2: /* during searching OAM-RAM */
+                if(t >= 80){
+                    t = 0;  
+                    lcd->mode_flag = 3;
+                }
+                break;
+
+            case 3: /* during transferring data to LCD driver */
+                if(t >= 172){
+                    t = 0;  
+                    lcd->mode_flag = 0;
+                    render(lcd);
+                }
+                break;
+            default:
+                break;
+        }
+
+        t++;
+
+        //getc(stdin);
+
     }
 
     return 0;
