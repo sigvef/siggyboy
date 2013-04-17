@@ -588,11 +588,11 @@ MU_TEST(instructions_jr){
     CPU_reset(&cpu);
     cpu.A = 0x81;
     mem->ROM_bank_0[0x100] = 0x18; /* JR n */
-    mem->ROM_bank_0[0x101] = 0xFF;
+    mem->ROM_bank_0[0x101] = 0x7F;
     CPU_process_instruction(&cpu, mem);
     
     /* assert */
-    mu_assert_int_eq(0x102 + 0xFF - 127, cpu.PC);
+    mu_assert_int_eq(385, cpu.PC);
 
     /* act */
     CPU_reset(&cpu);
@@ -602,7 +602,7 @@ MU_TEST(instructions_jr){
     CPU_process_instruction(&cpu, mem);
     
     /* assert */
-    mu_assert_int_eq(0x102 - 127, cpu.PC);
+    mu_assert_int_eq(0x102, cpu.PC);
 }
 
 

@@ -126,6 +126,17 @@ uint16_t CPU_op_pop(CPU*cpu, Memory* mem){
     return (high << 8) | low;
 }
 
+void CPU_op_jr(CPU*cpu, uint8_t a){
+
+
+    if(a & 0x80){
+        a = ~(a-1);
+        cpu->PC -= a;
+    }else{
+        cpu->PC += a;
+    }
+}
+
 
 /* inspired by https://gbemulator.googlecode.com/svn/trunk/src/core.c */
 
@@ -890,36 +901,31 @@ void CPU_process_instruction(CPU*cpu, Memory* mem){
 
 
         case 0x18:  // JR n
-            CPU_dump_state(cpu);
-            cpu->PC = cpu->PC + 1 + (int8_t) Memory_read_8(mem, cpu->PC);
-            CPU_dump_state(cpu);
+            CPU_op_jr(cpu, Memory_read_8(mem, cpu->PC));
+            cpu->PC++;
             break;
         case 0x20:  // JR NZ, n
-            ;uint16_t possible_new_PC = cpu->PC + 1 + (int8_t) Memory_read_8(mem, cpu->PC);
             cpu->PC++;
             if(cpu->z == 0){
-                cpu->PC = possible_new_PC;
+                CPU_op_jr(cpu, Memory_read_8(mem, cpu->PC));
             }
             break;
         case 0x28:  // JR Z, n
-            possible_new_PC = cpu->PC + 1 + (int8_t) Memory_read_8(mem, cpu->PC);
             cpu->PC++;
             if(cpu->z == 1){
-                cpu->PC = possible_new_PC;
+                CPU_op_jr(cpu, Memory_read_8(mem, cpu->PC));
             }
             break;
         case 0x30:  // JR NC, n
-            possible_new_PC = cpu->PC + 1 + (int8_t) Memory_read_8(mem, cpu->PC);
             cpu->PC++;
             if(cpu->cy == 0){
-                cpu->PC = possible_new_PC;
+                CPU_op_jr(cpu, Memory_read_8(mem, cpu->PC));
             }
             break;
         case 0x38:  // JR C, n
-            possible_new_PC = cpu->PC + 1 + (int8_t) Memory_read_8(mem, cpu->PC);
             cpu->PC++;
             if(cpu->cy == 1){
-                cpu->PC = possible_new_PC;
+                CPU_op_jr(cpu, Memory_read_8(mem, cpu->PC));
             }
             break;
 
