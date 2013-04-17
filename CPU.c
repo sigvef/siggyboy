@@ -3,6 +3,16 @@
 #include "Memory.h"
 #include "Cartridge.h"
 
+void CPU_dump_state(CPU*cpu){
+    printf("\n");
+    printf("AF: %6.X, A: %6.X, F: %6.X\n", cpu->AF, cpu->A, cpu->F);
+    printf("BC: %6.X, B: %6.X, C: %6.X\n", cpu->BC, cpu->B, cpu->C);
+    printf("DE: %6.X, D: %6.X, E: %6.X\n", cpu->DE, cpu->D, cpu->E);
+    printf("HL: %6.X, H: %6.X, L: %6.X\n", cpu->HL, cpu->H, cpu->L);
+    printf("SP: %6.X\n", cpu->SP);
+    printf("PC: %6.X\n", cpu->PC);
+    printf("\n");
+}
 
 void CPU_reset(CPU*cpu){
     cpu->AF = 0;
@@ -880,7 +890,9 @@ void CPU_process_instruction(CPU*cpu, Memory* mem){
 
 
         case 0x18:  // JR n
+            CPU_dump_state(cpu);
             cpu->PC = cpu->PC + 1 + (int8_t) Memory_read_8(mem, cpu->PC);
+            CPU_dump_state(cpu);
             break;
         case 0x20:  // JR NZ, n
             ;uint16_t possible_new_PC = cpu->PC + 1 + (int8_t) Memory_read_8(mem, cpu->PC);
